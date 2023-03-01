@@ -3,7 +3,7 @@ const { createApp } = require("../../app.js");
 
 const app = createApp();
 
-const retriveAllPosts = async () => {
+const retrieveAllPosts = async () => {
   const response = await request(app).get("/allPosts").send();
   return response;
 };
@@ -14,7 +14,7 @@ const createAPost = async (requestData) => {
   return postId;
 };
 
-const retriveAPost = async (postId) => {
+const retrieveAPost = async (postId) => {
   try {
     const response = await request(app).get("/posts").send({ postId });
     const responseBody = {
@@ -45,8 +45,8 @@ const deleteAPost = async (postId) => {
 
 module.exports = {
   createAPost,
-  retriveAPost,
+  retrieveAPost,
   updateAPost,
   deleteAPost,
-  retriveAllPosts,
+  retrieveAllPosts,
 };

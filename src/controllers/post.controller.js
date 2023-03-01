@@ -1,8 +1,10 @@
 const postDao = require("../models/post.dao");
 
-const retriveAllPosts = async (req, res) => {
-  const posts = await postDao.retriveAll();
-  res.status(200).json({ message: "All posts has been retrived", data: posts });
+const retrieveAllPosts = async (req, res) => {
+  const posts = await postDao.retrieveAll();
+  res
+    .status(200)
+    .json({ message: "All posts has been retrieved", data: posts });
 };
 
 const createAPost = async (req, res) => {
@@ -22,10 +24,10 @@ const createAPost = async (req, res) => {
   });
 };
 
-const retriveAPost = async (req, res) => {
+const retrieveAPost = async (req, res) => {
   const postId = req.body.postId;
-  const post = await postDao.retrive(postId);
-  res.status(200).send({ message: "Post has been retrived", data: post });
+  const post = await postDao.retrieve(postId);
+  res.status(200).send({ message: "Post has been retrieved", data: post });
 };
 
 const updateAPost = async (req, res) => {
@@ -43,9 +45,9 @@ const deleteAPost = async (req, res) => {
 };
 
 module.exports = {
-  retriveAllPosts,
+  retrieveAllPosts,
   createAPost,
-  retriveAPost,
+  retrieveAPost,
   updateAPost,
   deleteAPost,
 };

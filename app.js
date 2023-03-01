@@ -17,11 +17,11 @@ const createApp = () => {
     res.status(200).send("hello");
   });
 
-  app.get("/allPosts", postController.retriveAllPosts);
+  app.get("/allPosts", postController.retrieveAllPosts);
 
   app.post("/posts", postController.createAPost);
 
-  app.get("/posts", postController.retriveAPost);
+  app.get("/posts", postController.retrieveAPost);
 
   app.patch("/posts", postController.updateAPost);
 

@@ -2,10 +2,10 @@ const mongoose = require("mongoose");
 require("dotenv").config({ path: "../env/.env" });
 const {
   createAPost,
-  retriveAPost,
+  retrieveAPost,
   updateAPost,
   deleteAPost,
-  retriveAllPosts,
+  retrieveAllPosts,
 } = require("./supertest/posts.js");
 
 const { data, newData } = require("./testData/testData.js");
@@ -37,16 +37,16 @@ describe("Test the Post APIs", () => {
     }
   });
 
-  it("retrives all the posts", async () => {
+  it("retrieves all the posts", async () => {
     // when
-    const response = await retriveAllPosts();
+    const response = await retrieveAllPosts();
     // given
-    expect(response.body.message).toEqual("All posts has been retrived");
+    expect(response.body.message).toEqual("All posts has been retrieved");
   });
 
-  it("retrives a post", async () => {
+  it("retrieves a post", async () => {
     // when
-    const response = await retriveAPost(postId);
+    const response = await retrieveAPost(postId);
     // expect
     expect(response).toEqual(data);
   });
@@ -62,7 +62,7 @@ describe("Test the Post APIs", () => {
   it("deletes a post", async () => {
     // when
     await deleteAPost(postId);
-    const response = await retriveAPost(postId);
+    const response = await retrieveAPost(postId);
     // expect
     expect(response).toBe(null);
   });

@@ -5,6 +5,7 @@ const {
   retriveAPost,
   updateAPost,
   deleteAPost,
+  retriveAllPosts,
 } = require("./supertest/posts.js");
 
 const { data, newData } = require("./testData/testData.js");
@@ -34,6 +35,13 @@ describe("Test the Post APIs", () => {
     for (const collection of collections) {
       await collection.deleteMany({});
     }
+  });
+
+  it("retrives all the posts", async () => {
+    // when
+    const response = await retriveAllPosts();
+    // given
+    expect(response.body.message).toEqual("All posts has been retrived");
   });
 
   it("retrives a post", async () => {

@@ -3,6 +3,15 @@ const { postSchema } = require("../schema/post.schema");
 
 const Post = mongoose.model("post", postSchema);
 
+const retriveAll = async () => {
+  try {
+    const posts = await Post.find({}, { title: 1, author: 1 });
+    return posts;
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+
 const insert = async (title, author, contents) => {
   try {
     const post = await Post.create({
@@ -46,4 +55,4 @@ const remove = async (postId) => {
   }
 };
 
-module.exports = { insert, retrive, update, remove };
+module.exports = { insert, retrive, update, remove, retriveAll };

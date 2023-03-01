@@ -1,5 +1,10 @@
 const postDao = require("../models/post.dao");
 
+const retriveAllPosts = async (req, res) => {
+  const posts = await postDao.retriveAll();
+  res.status(200).json({ message: "All posts has been retrived", data: posts });
+};
+
 const createAPost = async (req, res) => {
   const title = req.body.title;
   const author = req.body.author;
@@ -37,4 +42,10 @@ const deleteAPost = async (req, res) => {
   res.status(200).send({ message: "Post has been deleted", data: deletedPost });
 };
 
-module.exports = { createAPost, retriveAPost, updateAPost, deleteAPost };
+module.exports = {
+  retriveAllPosts,
+  createAPost,
+  retriveAPost,
+  updateAPost,
+  deleteAPost,
+};

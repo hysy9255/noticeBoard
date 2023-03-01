@@ -17,6 +17,8 @@ const createApp = () => {
     res.status(200).send("hello");
   });
 
+  app.get("/allPosts", postController.retriveAllPosts);
+
   app.post("/posts", postController.createAPost);
 
   app.get("/posts", postController.retriveAPost);

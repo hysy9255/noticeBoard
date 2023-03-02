@@ -1,8 +1,9 @@
 const commentDao = require("../models/comment.dao");
 
 const postAComment = async (req, res) => {
+  const author = res.locals.name;
+
   const postId = req.body.postId;
-  const author = req.body.author;
   const contents = req.body.contents;
 
   const comment = await commentDao.insert(postId, author, contents);

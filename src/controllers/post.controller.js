@@ -8,8 +8,9 @@ const retrieveAllPosts = async (req, res) => {
 };
 
 const createAPost = async (req, res) => {
+  const author = res.locals.name;
+
   const title = req.body.title;
-  const author = req.body.author;
   const contents = req.body.contents;
 
   const post = await postDao.insert(title, author, contents);

@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
 const { postSchema } = require("../schema/post.schema");
+const { conn1 } = require("./dataSource.js");
 
-const Post = mongoose.model("post", postSchema);
+const Post = conn1.model("post", postSchema);
 
 const insert = async (postId, author, contents) => {
   try {

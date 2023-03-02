@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
 const { postSchema } = require("../schema/post.schema");
+const { conn1 } = require("./dataSource.js");
 
-const Post = mongoose.model("post", postSchema);
+const Post = conn1.model("post", postSchema);
 
 const retrieveAll = async () => {
   try {
@@ -55,4 +55,31 @@ const remove = async (postId) => {
   }
 };
 
-module.exports = { insert, retrieve, update, remove, retrieveAll };
+const findPost = async (email, postId) => {
+  try {
+    const exist = await Post.findOne({ email: email, postId: postId });
+    return exist;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+const findCommentFromPost = async (postId, commentId) => {
+  try {
+    const post = await Post.findById(postId);
+    const comment = post.comments.id(commentId);
+    return comment;
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+module.exports = {
+  insert,
+  retrieve,
+  update,
+  remove,
+  retrieveAll,
+  findPost,
+  findCommentFromPost,
+};

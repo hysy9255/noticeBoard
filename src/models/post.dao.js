@@ -1,5 +1,5 @@
 const { postSchema } = require("../schema/post.schema");
-const { conn1 } = require("./dataSource.js");
+const { conn1 } = require("../../dataSource.js");
 
 const Post = conn1.model("post", postSchema);
 

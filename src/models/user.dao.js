@@ -1,5 +1,5 @@
 const { userSchema } = require("../schema/user.schema");
-const { conn2 } = require("./dataSource.js");
+const { conn2 } = require("../../dataSource.js");
 
 const User = conn2.model("user", userSchema);
 

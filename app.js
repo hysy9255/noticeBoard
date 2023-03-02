@@ -6,11 +6,7 @@ const postController = require("./src/controllers/post.controller.js");
 const commentController = require("./src/controllers/comment.controller.js");
 
 const { jwtValidator } = require("./src/utils/jwtValidation.js");
-const { getName } = require("./src/utils/getName.js");
 const { validateAuthor } = require("./src/utils/validateAuthor.js");
-const {
-  validateAuthorForComment,
-} = require("./src/utils/validateAuthorForComment");
 
 const createApp = () => {
   const app = express();
@@ -26,7 +22,7 @@ const createApp = () => {
 
   app.get("/allPosts", postController.retrieveAllPosts);
 
-  app.post("/posts", jwtValidator, getName, postController.createAPost);
+  app.post("/posts", jwtValidator, postController.createAPost);
 
   app.get("/posts", postController.retrieveAPost);
 
@@ -39,21 +35,19 @@ const createApp = () => {
     postController.deleteAPost
   );
 
-  app.post("/comments", jwtValidator, getName, commentController.postAComment);
+  app.post("/comments", jwtValidator, commentController.postAComment);
 
   app.patch(
     "/comments",
     jwtValidator,
-    getName,
-    validateAuthorForComment,
+    validateAuthor,
     commentController.updateAComment
   );
 
   app.delete(
     "/comments",
     jwtValidator,
-    getName,
-    validateAuthorForComment,
+    validateAuthor,
     commentController.deleteAComment
   );
 

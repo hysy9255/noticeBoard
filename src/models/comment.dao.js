@@ -1,40 +1,59 @@
-const { postSchema } = require("../schema/post.schema");
-const { conn1 } = require("../../dataSource.js");
+const mongoose = require("mongoose");
+const { postSchema } = require("../schemas/post.schema");
 
-const Post = conn1.model("post", postSchema);
+const Post = mongoose.model("post", postSchema);
 
-const insert = async (postId, author, contents) => {
+const createAComment = async (email, name, postId, contents) => {
   try {
     const post = await Post.findById(postId);
-    post.comments.push({ author, contents });
+    if (post === null) {
+      throw new Error("해당 postId를 가진 게시물이 없습니다.");
+    }
+    post.comments.push({ email, name, contents });
     const comment = await post.save();
     return comment;
-  } catch (err) {
-    console.log(err.message);
+  } catch (error) {
+    throw error;
   }
 };
 
-const update = async (postId, commentId, newContents) => {
+const updateAComment = async (postId, commentId, newContents) => {
   try {
     const post = await Post.findById(postId);
     const comment = post.comments.id(commentId);
     comment.contents = newContents;
-    const updated = await post.save();
-    return updated;
-  } catch (err) {
-    console.log(err.message);
+    const updatedPost = await post.save();
+    return updatedPost.comments.id(commentId);
+  } catch (error) {
+    throw error;
   }
 };
 
-const remove = async (postId, commentId) => {
+const deleteAComment = async (postId, commentId) => {
   try {
     const post = await Post.findById(postId);
+    console.log(post)
     post.comments.pull({ _id: commentId });
     post.save();
     return post;
-  } catch (err) {
-    console.log(err.message);
+  } catch (error) {
+    throw error;
   }
 };
 
-module.exports = { insert, update, remove };
+const findAComment = async (postId, commentId) => {
+  try {
+    const post = await Post.findById(postId);
+    const comment = post.comments.id(commentId);
+    return comment;
+  } catch (error) {
+    throw error;
+  }
+};
+
+module.exports = {
+  createAComment,
+  updateAComment,
+  deleteAComment,
+  findAComment,
+};

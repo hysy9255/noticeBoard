@@ -1,52 +1,69 @@
-const { postSchema } = require("../schema/post.schema");
-const { conn1 } = require("../../dataSource.js");
+const mongoose = require("mongoose");
+const { postSchema } = require("../schemas/post.schema");
 
-const Post = conn1.model("post", postSchema);
+const Post = mongoose.model("post", postSchema);
 
-const retrieveAll = async () => {
+const retrieveTitlesByCategory = async (category, orderBy, method) => {
   try {
-    const posts = await Post.find({}, { title: 1, author: 1 });
+    const posts = await Post.find(
+      { category },
+      { title: 1, name: 1, createdAt: 1, views: 1, likes: 1 }
+    );
     return posts;
-  } catch (err) {
-    console.log(err.message);
+  } catch (error) {
+    throw error;
   }
 };
 
-const insert = async (title, author, contents) => {
+const createAPost = async (category, title, name, email, contents, views) => {
   try {
     const post = await Post.create({
+      category,
       title,
-      author,
+      name,
+      email,
       contents,
+      views,
     });
     return post;
-  } catch (err) {
-    console.log(err.message);
+  } catch (error) {
+    throw error;
   }
 };
 
-const retrieve = async (postId) => {
+const updateViews = async (postId) => {
+  try {
+    const post = await Post.findById(postId);
+    post.views = post.views + 1;
+    const updated = await post.save();
+    return updated;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const retrieveAPost = async (postId) => {
   try {
     const post = await Post.findById(postId);
     return post;
-  } catch (err) {
-    console.log(err.message);
+  } catch (error) {
+    throw error;
   }
 };
 
-const update = async (postId, newTitle, newContents) => {
+const updateAPost = async (postId, newTitle, newContents) => {
   try {
     const post = await Post.findById(postId);
     post.title = newTitle;
     post.contents = newContents;
     const updated = await post.save();
     return updated;
-  } catch (err) {
-    console.log(err.message);
+  } catch (error) {
+    throw error;
   }
 };
 
-const remove = async (postId) => {
+const deleteAPost = async (postId) => {
   try {
     const deleted = await Post.deleteOne({ _id: postId });
     return deleted;
@@ -55,12 +72,12 @@ const remove = async (postId) => {
   }
 };
 
-const findPost = async (email, postId) => {
+const findAPost = async (email, postId) => {
   try {
-    const exist = await Post.findOne({ email: email, postId: postId });
+    const exist = await Post.findOne({ email: email, _id: postId });
     return exist;
   } catch (error) {
-    console.log(error.message);
+    throw error;
   }
 };
 
@@ -74,12 +91,34 @@ const findCommentFromPost = async (postId, commentId) => {
   }
 };
 
+const adminDeleteAPost = async (postId) => {
+  try {
+    const deleted = await Post.deleteOne({ _id: postId });
+    return deleted;
+  } catch (error) {
+    throw error;
+  }
+};
+
+const updateLikesCount = async (postId, likesCount) => {
+  try {
+    const post = await Post.findById(postId);
+    post.likes = likesCount;
+    post.save();
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
-  insert,
-  retrieve,
-  update,
-  remove,
-  retrieveAll,
-  findPost,
+  createAPost,
+  retrieveAPost,
+  updateViews,
+  updateAPost,
+  deleteAPost,
+  retrieveTitlesByCategory,
+  findAPost,
   findCommentFromPost,
+  adminDeleteAPost,
+  updateLikesCount,
 };

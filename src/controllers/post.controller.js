@@ -1,54 +1,131 @@
-const postDao = require("../models/post.dao");
+const postService = require("../services/post.service.js");
+const superagent = require("superagent");
 
-const retrieveAllPosts = async (req, res) => {
-  const posts = await postDao.retrieveAll();
-  res
-    .status(200)
-    .json({ message: "All posts has been retrieved", data: posts });
+const retrieveTitlesByCategory = async (req, res, next) => {
+  try {
+    const category = req.query.category;
+    const orderBy = req.query.orderBy;
+    const method = req.query.method;
+
+    const posts = await postService.retrieveTitlesByCategory(
+      category,
+      orderBy,
+      method
+    );
+    res
+      .status(200)
+      .json({ message: "All posts has been retrieved", data: posts });
+  } catch (error) {
+    next(error);
+  }
 };
 
-const createAPost = async (req, res) => {
-  const author = res.locals.name;
+const createAPost = async (req, res, next) => {
+  try {
+    const post = await postService.createAPost(
+      req.query.category,
+      req.body.title,
+      res.locals.name,
+      res.locals.email,
+      req.body.contents
+    );
 
-  const title = req.body.title;
-  const contents = req.body.contents;
+    const response = await superagent
+      .patch("http://localhost:5000/myPage/createAPost")
+      .send({ postInfo: post });
 
-  const post = await postDao.insert(title, author, contents);
-  res.status(200).send({
-    message: "Post has been inserted",
-    data: {
-      title: post.title,
-      author: post.author,
-      contents: post.contents,
-      _id: post._id,
-    },
-  });
+    if (response.body.message === "Successfully posted") {
+      res.status(200).send({
+        message: "Post has been created",
+        data: post,
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
 };
 
-const retrieveAPost = async (req, res) => {
-  const postId = req.body.postId;
-  const post = await postDao.retrieve(postId);
-  res.status(200).send({ message: "Post has been retrieved", data: post });
+const retrieveAPost = async (req, res, next) => {
+  try {
+    let post;
+    if (res.locals.loggedIn === true) {
+      post = await postService.retrieveAPost(
+        req.body.postId,
+        res.locals.email,
+        res.locals.isAdmin
+      );
+    } else {
+      post = await postService.retrieveAPostNoToken(req.body.postId);
+    }
+
+    res.status(200).send({ message: "Post has been retrieved", data: post });
+  } catch (error) {
+    next(error);
+  }
 };
 
-const updateAPost = async (req, res) => {
-  const postId = req.body.postId;
-  const newTitle = req.body.newTitle;
-  const newContents = req.body.newContents;
-  const updatedPost = await postDao.update(postId, newTitle, newContents);
-  res.status(200).send({ message: "Post has been updated", data: updatedPost });
+const updateAPost = async (req, res, next) => {
+  try {
+    const updatedPost = await postService.updateAPost(
+      res.locals.email,
+      req.body.postId,
+      req.body.newTitle,
+      req.body.newContents
+    );
+
+    const response = await superagent
+      .patch("http://localhost:5000/myPage/updateAPost")
+      .send({ postInfo: updatedPost });
+
+    console.log(response);
+
+    if (response.body.message === "Successfully updated") {
+      res
+        .status(200)
+        .send({ message: "Post has been updated", data: updatedPost });
+    }
+  } catch (error) {
+    next(error);
+  }
 };
 
-const deleteAPost = async (req, res) => {
-  const postId = req.body.postId;
-  const deletedPost = await postDao.remove(postId);
-  res.status(200).send({ message: "Post has been deleted", data: deletedPost });
+const deleteAPost = async (req, res, next) => {
+  try {
+    const [post, deletedPost] = await postService.deleteAPost(
+      res.locals.email,
+      req.body.postId
+    );
+
+    const response = await superagent
+      .patch("http://localhost:5000/myPage/deleteAPost")
+      .send({ postInfo: post });
+
+    if (response.body.message === "Successfully deleted") {
+      res.status(200).send({
+        message: "Post has been deleted",
+        deletedPost: post,
+        data: deletedPost,
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+const adminDeleteAPost = async (req, res, next) => {
+  try {
+    const deleted = await postService.adminDeleteAPost(req.body.postId);
+    res.status(200).send({ message: "Admin deleted post", data: deleted });
+  } catch (error) {
+    next(error);
+  }
 };
 
 module.exports = {
-  retrieveAllPosts,
+  retrieveTitlesByCategory,
   createAPost,
   retrieveAPost,
   updateAPost,
   deleteAPost,
+  adminDeleteAPost,
 };

@@ -1,6 +1,6 @@
 const postDao = require("../models/post.dao");
 
-const retrieveTitlesByCategory = async (category) => {
+const retrieveTitlesByCategory = async (category, orderBy, method) => {
   try {
     const post = await postDao.retrieveTitlesByCategory(
       category,

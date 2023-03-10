@@ -8,7 +8,7 @@ const retrieveTitlesByCategory = async (category, orderBy, method) => {
     const posts = await Post.find(
       { category },
       { title: 1, name: 1, createdAt: 1, views: 1, likes: 1 }
-    );
+    ).sort([[orderBy, method]]);
     return posts;
   } catch (error) {
     throw error;

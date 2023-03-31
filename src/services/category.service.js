@@ -1,34 +1,22 @@
+const { detectError } = require("../utils/error.js");
 const categoryDao = require("./../models/category.dao.js");
 
-const retrieveCategories = async () => {
-  try {
-    const categories = await categoryDao.retrieveCategories();
-    return categories;
-  } catch (error) {
-    throw error;
-  }
-};
-
 const createACategory = async (category) => {
-  try {
-    const duplicateExists = await categoryDao.findACategory(category);
-    if (duplicateExists) {
-      throw new Error("Given category already exists");
-    }
-    const categoryCreated = await categoryDao.createACategory(category);
-    return categoryCreated;
-  } catch (error) {
-    throw error;
+  const duplicateExists = await categoryDao.findACategory(category);
+  if (duplicateExists) {
+    detectError("Given category already exists", 400);
   }
+  await categoryDao.createACategory(category);
 };
 
 const deleteACategory = async (category) => {
-  try {
-    const categoryDeleted = await categoryDao.deleteACategory(category);
-    return categoryDeleted;
-  } catch (error) {
-    throw error;
-  }
+  const categoryDeleted = await categoryDao.deleteACategory(category);
+  return categoryDeleted;
+};
+
+const retrieveCategories = async () => {
+  const categories = await categoryDao.retrieveCategories();
+  return categories;
 };
 
 module.exports = { retrieveCategories, createACategory, deleteACategory };

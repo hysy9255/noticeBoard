@@ -3,17 +3,16 @@ const { categorySchema } = require("../schemas/category.schema.js");
 
 const Category = mongoose.model("category", categorySchema);
 
+const createACategory = async (category) => {
+  await Category.create({ category });
+};
+
 const retrieveCategories = async () => {
   return await Category.find({});
 };
 
 const findACategory = async (category) => {
   return await Category.findOne({ category });
-};
-
-const createACategory = async (category) => {
-  const categoryCreated = await Category.create({ category });
-  return categoryCreated;
 };
 
 const deleteACategory = async (category) => {

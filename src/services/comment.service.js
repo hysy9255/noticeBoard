@@ -1,17 +1,7 @@
 const commentDao = require("./../models/comment.dao.js");
 
-const createAComment = async (email, name, postId, contents) => {
-  try {
-    const comment = await commentDao.createAComment(
-      email,
-      name,
-      postId,
-      contents
-    );
-    return comment;
-  } catch (error) {
-    throw error;
-  }
+const createAComment = async (userInfo, requestData) => {
+  await commentDao.createAComment(userInfo, requestData);
 };
 
 const updateAComment = async (email, postId, commentId, newContents) => {

@@ -1,32 +1,41 @@
 const postDao = require("../models/post.dao");
+const jwt = require("jsonwebtoken");
+const { detectError } = require("./../utils/error.js");
+require("dotenv").config({ path: "./../../env/.env" });
 
-const retrieveTitlesByCategory = async (category, orderBy, method) => {
-  try {
-    const post = await postDao.retrieveTitlesByCategory(
-      category,
-      orderBy,
-      method
-    );
-    return post;
-  } catch (error) {
-    throw error;
-  }
+const retrievePosts = async (requestData) => {
+  const posts = await postDao.retrievePosts(requestData);
+  return posts;
 };
 
-const createAPost = async (category, title, name, email, contents) => {
-  try {
-    const views = 0;
-    const post = await postDao.createAPost(
-      category,
-      title,
-      name,
-      email,
-      contents,
-      views
-    );
+const createAPost = async (accountId, userInfo, requestData) => {
+  return await postDao.createAPost(accountId, userInfo, requestData);
+};
+
+const retrieveAPost = async (token, postId) => {
+  await postDao.updateViews(postId);
+  const post = await postDao.retrieveAPost(postId);
+
+  if (!token) {
     return post;
-  } catch (error) {
-    throw error;
+  }
+
+  if (token) {
+    const decodedToken = jwt.verify(token, process.env.SECRETE_KEY);
+    const { accountId } = decodedToken;
+
+    if (accountId === post.accountId) {
+      post.deleteAllowed = true;
+      post.modifyAllowed = true;
+    }
+
+    for (let i = 0; i < post.comments.length; i++) {
+      if (post.comments[i].accountId === accountId) {
+        post.comments[i].modifyAllowed = true;
+        post.comments[i].deleteAllowed = true;
+      }
+    }
+    return post;
   }
 };
 
@@ -46,85 +55,37 @@ const retrieveAPostNoToken = async (postId) => {
   }
 };
 
-const retrieveAPost = async (postId, userEmail, isAdmin) => {
-  try {
-    await postDao.updateViews(postId);
-    const post = await postDao.retrieveAPost(postId);
-    if (userEmail === post.email) {
-      post.deleteAllowed = true;
-      post.modifyAllowed = true;
-    } else if (isAdmin) {
-      post.modifyAllowed = false;
-      post.deleteAllowed = true;
-    } else {
-      post.modifyAllowed = false;
-      post.deleteAllowed = false;
-    }
-
-    for (let i = 0; i < post.comments.length; i++) {
-      if (post.comments[i].email === userEmail) {
-        post.comments[i].modifyAllowed = true;
-        post.comments[i].deleteAllowed = true;
-      } else if (isAdmin) {
-        post.comments[i].modifyAllowed = false;
-        post.comments[i].deleteAllowed = true;
-      } else {
-        post.comments[i].modifyAllowed = false;
-        post.comments[i].deleteAllowed = false;
-      }
-    }
-
-    return post;
-  } catch (error) {
-    throw error;
+const updateAPost = async (accountId, requestData) => {
+  const { postId } = requestData;
+  // retrieveAPost에서 자신이 작성한것만 수정 가능케 해놓았지만
+  // updateAPost에서도 한번더 중복으로 검사를 한다. (API 서버에 직접 삭제 요청을 할 수 있기 때문)
+  const post = await postDao.findAPost(postId);
+  if (post.accountId !== accountId) {
+    detectError("자신이 작성한 게시물만 수정/삭제 가능", 400);
   }
+  return await postDao.updateAPost(requestData);
 };
 
-const updateAPost = async (email, postId, newTitle, newContents) => {
-  try {
-    const postExists = await postDao.findAPost(email, postId);
-    if (postExists === null) {
-      throw new Error("자신이 작성한 게시물만 수정/삭제 가능");
-    }
-    const updatedPost = await postDao.updateAPost(
-      postId,
-      newTitle,
-      newContents
-    );
-    return updatedPost;
-  } catch (error) {
-    throw error;
+const deleteAPost = async (accountId, postId) => {
+  // retrieveAPost에서 자신이 작성한것만 삭제 가능케 해놓았지만
+  // updateAPost에서도 한번더 중복으로 검사를 한다. (API 서버에 직접 삭제 요청을 할 수 있기 때문)
+  const post = await postDao.findAPost(postId);
+  if (post.accountId !== accountId) {
+    detectError("자신이 작성한 게시물만 수정/삭제 가능", 400);
   }
-};
-
-const deleteAPost = async (email, postId) => {
-  try {
-    const post = await postDao.findAPost(email, postId);
-    if (post === null) {
-      throw new Error("자신이 작성한 게시물만 수정/삭제 가능");
-    }
-    const deletedPost = await postDao.deleteAPost(postId);
-    return [post, deletedPost];
-  } catch (error) {
-    throw error;
-  }
+  await postDao.deleteAPost(postId);
 };
 
 const adminDeleteAPost = async (postId) => {
-  try {
-    const deleted = await postDao.adminDeleteAPost(postId);
-    return deleted;
-  } catch (error) {
-    throw error;
-  }
+  await postDao.deletaAPost(postId);
 };
 
 module.exports = {
-  retrieveTitlesByCategory,
+  retrievePosts,
   updateAPost,
   deleteAPost,
+  adminDeleteAPost,
   createAPost,
   retrieveAPost,
   retrieveAPostNoToken,
-  adminDeleteAPost,
 };

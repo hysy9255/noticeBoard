@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const commentSchema = new mongoose.Schema({
+  accountId: String,
   name: String,
   email: String,
   contents: String,
@@ -11,6 +12,7 @@ const commentSchema = new mongoose.Schema({
 });
 
 const postSchema = new mongoose.Schema({
+  accountId: String,
   category: String,
   title: String,
   name: String,

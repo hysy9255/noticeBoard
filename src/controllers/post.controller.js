@@ -1,128 +1,73 @@
-const postService = require("../services/post.service.js");
-const superagent = require("superagent");
+const postService = require("./../services/post.service.js");
+const {
+  getUserInfo,
+  sendPostToUserPage,
+  updatePostFromUserPage,
+  deletePostFromUserPage,
+} = require("./../utils/communication.js");
 
-const retrieveTitlesByCategory = async (req, res, next) => {
-  try {
-    const category = req.query.category;
-    const orderBy = req.query.orderBy;
-    const method = req.query.method;
+const retrievePosts = async (req, res) => {
+  const requestData = req.query;
+  const posts = await postService.retrievePosts(requestData);
+  res.status(200).json({ posts });
+};
 
-    const posts = await postService.retrieveTitlesByCategory(
-      category,
-      orderBy,
-      method
-    );
-    res
-      .status(200)
-      .json({ message: "All posts has been retrieved", data: posts });
-  } catch (error) {
-    next(error);
+const createAPost = async (req, res) => {
+  const accountId = res.locals.accountId;
+  // 인증|인가 서버로부터 유저 정보 가져오기
+  const userInfo = await getUserInfo(accountId);
+  // 유저정보와 함께 게시물 생성하기
+  const requestData = req.body;
+  const post = await postService.createAPost(accountId, userInfo, requestData);
+  // 생성된 게시물을 유저페이지 서버에 보내기
+  const resFromUserPageServer = await sendPostToUserPage(accountId, post);
+  if (resFromUserPageServer.body.message === "Successfully posted") {
+    res.status(200).send({ message: "Post has been created" });
   }
 };
 
-const createAPost = async (req, res, next) => {
-  try {
-    const post = await postService.createAPost(
-      req.query.category,
-      req.body.title,
-      res.locals.name,
-      res.locals.email,
-      req.body.contents
-    );
+const retrieveAPost = async (req, res) => {
+  const token = req.headers.authorization;
+  const postId = req.query.postId;
+  const post = token
+    ? await postService.retrieveAPost(token, postId)
+    : await postService.retrieveAPost(postId);
+  res.status(200).send({ post });
+};
 
-    const response = await superagent
-      .patch("http://localhost:5000/myPage/createAPost")
-      .send({ postInfo: post });
-
-    if (response.body.message === "Successfully posted") {
-      res.status(200).send({
-        message: "Post has been created",
-        data: post,
-      });
-    }
-  } catch (error) {
-    next(error);
+const updateAPost = async (req, res) => {
+  const accountId = res.locals.accountId;
+  // 게시물 수정하기
+  const requestData = req.body;
+  const updatedPost = await postService.updateAPost(accountId, requestData);
+  // 생성된 게시물을 유저페이지 서버에 보내기
+  const response = await updatePostFromUserPage(accountId, updatedPost);
+  if (response.body.message === "Successfully updated") {
+    res.status(200).send({ message: "Post has been edited" });
   }
 };
 
-const retrieveAPost = async (req, res, next) => {
-  try {
-    let post;
-    if (res.locals.loggedIn === true) {
-      post = await postService.retrieveAPost(
-        req.body.postId,
-        res.locals.email,
-        res.locals.isAdmin
-      );
-    } else {
-      post = await postService.retrieveAPostNoToken(req.body.postId);
-    }
-
-    res.status(200).send({ message: "Post has been retrieved", data: post });
-  } catch (error) {
-    next(error);
+const deleteAPost = async (req, res) => {
+  const accountId = res.locals.accountId;
+  const postId = req.body.postId;
+  await postService.deleteAPost(accountId, postId);
+  const response = await deletePostFromUserPage(accountId, postId);
+  if (response.body.message === "Successfully deleted") {
+    res.status(200).send({ message: "Post has been deleted" });
   }
 };
 
-const updateAPost = async (req, res, next) => {
-  try {
-    const updatedPost = await postService.updateAPost(
-      res.locals.email,
-      req.body.postId,
-      req.body.newTitle,
-      req.body.newContents
-    );
-
-    const response = await superagent
-      .patch("http://localhost:5000/myPage/updateAPost")
-      .send({ postInfo: updatedPost });
-
-    console.log(response);
-
-    if (response.body.message === "Successfully updated") {
-      res
-        .status(200)
-        .send({ message: "Post has been updated", data: updatedPost });
-    }
-  } catch (error) {
-    next(error);
-  }
-};
-
-const deleteAPost = async (req, res, next) => {
-  try {
-    const [post, deletedPost] = await postService.deleteAPost(
-      res.locals.email,
-      req.body.postId
-    );
-
-    const response = await superagent
-      .patch("http://localhost:5000/myPage/deleteAPost")
-      .send({ postInfo: post });
-
-    if (response.body.message === "Successfully deleted") {
-      res.status(200).send({
-        message: "Post has been deleted",
-        deletedPost: post,
-        data: deletedPost,
-      });
-    }
-  } catch (error) {
-    next(error);
-  }
-};
-
-const adminDeleteAPost = async (req, res, next) => {
-  try {
-    const deleted = await postService.adminDeleteAPost(req.body.postId);
-    res.status(200).send({ message: "Admin deleted post", data: deleted });
-  } catch (error) {
-    next(error);
+const adminDeleteAPost = async (req, res) => {
+  const { accountId, postId } = req.body;
+  await postService.deleteAPost(postId);
+  const response = await deletePostFromUserPage(accountId, postId);
+  if (response.body.message === "Successfully deleted") {
+    res.status(200).send({ message: "Post has been deleted" });
   }
 };
 
 module.exports = {
-  retrieveTitlesByCategory,
+  retrievePosts,
   createAPost,
   retrieveAPost,
   updateAPost,

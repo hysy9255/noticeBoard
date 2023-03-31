@@ -2,15 +2,16 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const requestIp = require("request-ip");
+const routes = require("./src/routes/index.js");
 
 const postController = require("./src/controllers/post.controller.js");
 const commentController = require("./src/controllers/comment.controller.js");
 const categoryController = require("./src/controllers/category.controller.js");
 const likeController = require("./src/controllers/like.controller.js");
 
-const { jwtValidator } = require("./src/utils/jwtValidation.js");
+const { verifyUser } = require("./src/middlewares/signInRequired.js");
 const { softValidator } = require("./src/utils/softValidation.js");
-const { adminValidator } = require("./src/utils/adminValidation.js");
+// const { adminValidator } = require("./src/utils/adminValidation.js");
 
 const createApp = () => {
   const app = express();
@@ -30,33 +31,19 @@ const createApp = () => {
     res.status(200).send("hello");
   });
 
-  app.get("/postTitles/byCategory", postController.retrieveTitlesByCategory);
+  app.use(routes);
 
-  app.post("/posts", jwtValidator, postController.createAPost);
+  // app.post("/comments", verifyUser, commentController.createAComment);
 
-  app.get("/posts", softValidator, postController.retrieveAPost);
+  // app.patch("/comments", verifyUser, commentController.updateAComment);
 
-  app.patch("/posts", jwtValidator, postController.updateAPost);
+  // app.delete("/comments", verifyUser, commentController.deleteAComment);
 
-  app.delete("/posts", jwtValidator, postController.deleteAPost);
+  // app.delete("/admin", postController.adminDeleteAPost);
 
-  app.post("/comments", jwtValidator, commentController.createAComment);
+  // app.post("/like", verifyUser, likeController.likeAPost);
 
-  app.patch("/comments", jwtValidator, commentController.updateAComment);
-
-  app.delete("/comments", jwtValidator, commentController.deleteAComment);
-
-  app.delete("/admin", adminValidator, postController.adminDeleteAPost);
-
-  app.post("/category", adminValidator, categoryController.createACategory);
-
-  app.delete("/category", adminValidator, categoryController.deleteACategory);
-
-  app.get("/category", categoryController.retrieveCategories);
-
-  app.post("/like", jwtValidator, likeController.likeAPost);
-
-  app.get("/like", jwtValidator, likeController.retrieveLikes);
+  // app.get("/like", verifyUser, likeController.retrieveLikes);
 
   app.use((error, req, res, next) => {
     res.status(400).send({ message: error.message });

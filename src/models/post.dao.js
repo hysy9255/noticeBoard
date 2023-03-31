@@ -3,7 +3,8 @@ const { postSchema } = require("../schemas/post.schema");
 
 const Post = mongoose.model("post", postSchema);
 
-const retrieveTitlesByCategory = async (category, orderBy, method) => {
+const retrievePosts = async (requestData) => {
+  const { category, orderBy, method } = requestData;
   try {
     const posts = await Post.find(
       { category },
@@ -15,9 +16,13 @@ const retrieveTitlesByCategory = async (category, orderBy, method) => {
   }
 };
 
-const createAPost = async (category, title, name, email, contents, views) => {
+const createAPost = async (accountId, userInfo, requestData) => {
+  const views = 0;
+  const { name, email } = userInfo;
+  const { category, title, contents } = requestData;
   try {
-    const post = await Post.create({
+    return await Post.create({
+      accountId,
       category,
       title,
       name,
@@ -25,7 +30,6 @@ const createAPost = async (category, title, name, email, contents, views) => {
       contents,
       views,
     });
-    return post;
   } catch (error) {
     throw error;
   }
@@ -35,8 +39,7 @@ const updateViews = async (postId) => {
   try {
     const post = await Post.findById(postId);
     post.views = post.views + 1;
-    const updated = await post.save();
-    return updated;
+    await post.save();
   } catch (error) {
     throw error;
   }
@@ -44,20 +47,19 @@ const updateViews = async (postId) => {
 
 const retrieveAPost = async (postId) => {
   try {
-    const post = await Post.findById(postId);
-    return post;
+    return await Post.findById(postId);
   } catch (error) {
     throw error;
   }
 };
 
-const updateAPost = async (postId, newTitle, newContents) => {
+const updateAPost = async (requestData) => {
+  const { postId, newTitle, newContents } = requestData;
   try {
     const post = await Post.findById(postId);
     post.title = newTitle;
     post.contents = newContents;
-    const updated = await post.save();
-    return updated;
+    return await post.save();
   } catch (error) {
     throw error;
   }
@@ -65,17 +67,15 @@ const updateAPost = async (postId, newTitle, newContents) => {
 
 const deleteAPost = async (postId) => {
   try {
-    const deleted = await Post.deleteOne({ _id: postId });
-    return deleted;
-  } catch (err) {
-    console.log(err.message);
+    await Post.deleteOne({ _id: postId });
+  } catch (error) {
+    throw error;
   }
 };
 
-const findAPost = async (email, postId) => {
+const findAPost = async (postId) => {
   try {
-    const exist = await Post.findOne({ email: email, _id: postId });
-    return exist;
+    return await Post.findById(postId);
   } catch (error) {
     throw error;
   }
@@ -91,15 +91,6 @@ const findCommentFromPost = async (postId, commentId) => {
   }
 };
 
-const adminDeleteAPost = async (postId) => {
-  try {
-    const deleted = await Post.deleteOne({ _id: postId });
-    return deleted;
-  } catch (error) {
-    throw error;
-  }
-};
-
 const updateLikesCount = async (postId, likesCount) => {
   try {
     const post = await Post.findById(postId);
@@ -111,14 +102,13 @@ const updateLikesCount = async (postId, likesCount) => {
 };
 
 module.exports = {
+  retrievePosts,
   createAPost,
   retrieveAPost,
   updateViews,
   updateAPost,
   deleteAPost,
-  retrieveTitlesByCategory,
   findAPost,
   findCommentFromPost,
-  adminDeleteAPost,
   updateLikesCount,
 };

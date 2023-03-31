@@ -3,15 +3,17 @@ const { postSchema } = require("../schemas/post.schema");
 
 const Post = mongoose.model("post", postSchema);
 
-const createAComment = async (email, name, postId, contents) => {
+const createAComment = async (userInfo, requestData) => {
+  const { name, email, _id } = userInfo;
+  const accountId = _id;
+  const { postId, contents } = requestData;
   try {
     const post = await Post.findById(postId);
     if (post === null) {
       throw new Error("해당 postId를 가진 게시물이 없습니다.");
     }
-    post.comments.push({ email, name, contents });
-    const comment = await post.save();
-    return comment;
+    post.comments.push({ accountId, email, name, contents });
+    await post.save();
   } catch (error) {
     throw error;
   }
@@ -32,7 +34,7 @@ const updateAComment = async (postId, commentId, newContents) => {
 const deleteAComment = async (postId, commentId) => {
   try {
     const post = await Post.findById(postId);
-    console.log(post)
+    console.log(post);
     post.comments.pull({ _id: commentId });
     post.save();
     return post;

@@ -1,18 +1,20 @@
 const postService = require("./../services/post.service.js");
+const { asyncWrap } = require("./../utils/error.js");
 const {
   getUserInfo,
   sendPostToUserPage,
   updatePostFromUserPage,
   deletePostFromUserPage,
-} = require("./../utils/communication.js");
+} = require("../utils/superagent.js");
 
-const retrievePosts = async (req, res) => {
+const retrievePosts = asyncWrap(async (req, res) => {
   const requestData = req.query;
-  const posts = await postService.retrievePosts(requestData);
-  res.status(200).json({ posts });
-};
 
-const createAPost = async (req, res) => {
+  const posts = await postService.retrievePosts(requestData);
+  res.status(200).json(posts);
+});
+
+const createAPost = asyncWrap(async (req, res) => {
   const accountId = res.locals.accountId;
   // 인증|인가 서버로부터 유저 정보 가져오기
   const userInfo = await getUserInfo(accountId);
@@ -20,51 +22,50 @@ const createAPost = async (req, res) => {
   const requestData = req.body;
   const post = await postService.createAPost(accountId, userInfo, requestData);
   // 생성된 게시물을 유저페이지 서버에 보내기
-  const resFromUserPageServer = await sendPostToUserPage(accountId, post);
-  if (resFromUserPageServer.body.message === "Successfully posted") {
-    res.status(200).send({ message: "Post has been created" });
-  }
-};
+  await sendPostToUserPage(accountId, post);
 
-const retrieveAPost = async (req, res) => {
+  res.status(200).send({ message: "Post has been created" });
+});
+
+const retrieveAPost = asyncWrap(async (req, res) => {
   const token = req.headers.authorization;
   const postId = req.query.postId;
+
   const post = token
     ? await postService.retrieveAPost(token, postId)
     : await postService.retrieveAPost(postId);
-  res.status(200).send({ post });
-};
+  res.status(200).send(post);
+});
 
-const updateAPost = async (req, res) => {
+const updateAPost = asyncWrap(async (req, res) => {
   const accountId = res.locals.accountId;
-  // 게시물 수정하기
   const requestData = req.body;
+  // 게시물 수정하기
   const updatedPost = await postService.updateAPost(accountId, requestData);
   // 생성된 게시물을 유저페이지 서버에 보내기
-  const response = await updatePostFromUserPage(accountId, updatedPost);
-  if (response.body.message === "Successfully updated") {
-    res.status(200).send({ message: "Post has been edited" });
-  }
-};
+  await updatePostFromUserPage(accountId, updatedPost);
+  res.status(200).send({ message: "Post has been edited" });
+});
 
-const deleteAPost = async (req, res) => {
+const deleteAPost = asyncWrap(async (req, res) => {
   const accountId = res.locals.accountId;
   const postId = req.body.postId;
+  // 게시물 삭제하기
   await postService.deleteAPost(accountId, postId);
-  const response = await deletePostFromUserPage(accountId, postId);
-  if (response.body.message === "Successfully deleted") {
-    res.status(200).send({ message: "Post has been deleted" });
-  }
-};
+  // 유저 페이지에서도 게시물 삭제하기
+  await deletePostFromUserPage(accountId, postId);
+  res.status(200).send({ message: "Post has been deleted" });
+});
 
-const adminDeleteAPost = async (req, res) => {
+const adminDeleteAPost = asyncWrap(async (req, res) => {
+  const { adminAcctId, isAdmin } = res.locals;
   const { accountId, postId } = req.body;
-  await postService.deleteAPost(postId);
-  const response = await deletePostFromUserPage(accountId, postId);
-  if (response.body.message === "Successfully deleted") {
-    res.status(200).send({ message: "Post has been deleted" });
-  }
-};
+
+  await postService.deleteAPost(adminAcctId, postId, isAdmin);
+
+  await deletePostFromUserPage(accountId, postId);
+  res.status(200).send({ message: "Post has been deleted" });
+});
 
 module.exports = {
   retrievePosts,

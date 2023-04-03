@@ -1,11 +1,10 @@
 const postDao = require("../models/post.dao");
 const jwt = require("jsonwebtoken");
-const { detectError } = require("./../utils/error.js");
+const error = require("./utils/service.error");
 require("dotenv").config({ path: "./../../env/.env" });
 
 const retrievePosts = async (requestData) => {
-  const posts = await postDao.retrievePosts(requestData);
-  return posts;
+  return await postDao.retrievePosts(requestData);
 };
 
 const createAPost = async (accountId, userInfo, requestData) => {
@@ -39,53 +38,29 @@ const retrieveAPost = async (token, postId) => {
   }
 };
 
-const retrieveAPostNoToken = async (postId) => {
-  try {
-    await postDao.updateViews(postId);
-    const post = await postDao.retrieveAPost(postId);
-    post.deleteAllowed = false;
-    post.modifyAllowed = false;
-    for (let i = 0; i < post.comments.length; i++) {
-      post.comments[i].modifyAllowed = false;
-      post.comments[i].deleteAllowed = false;
-    }
-    return post;
-  } catch (error) {
-    throw error;
-  }
-};
-
 const updateAPost = async (accountId, requestData) => {
   const { postId } = requestData;
-  // retrieveAPost에서 자신이 작성한것만 수정 가능케 해놓았지만
-  // updateAPost에서도 한번더 중복으로 검사를 한다. (API 서버에 직접 삭제 요청을 할 수 있기 때문)
-  const post = await postDao.findAPost(postId);
-  if (post.accountId !== accountId) {
-    detectError("자신이 작성한 게시물만 수정/삭제 가능", 400);
-  }
+  const post = await postDao.retrieveAPost(postId);
+
+  error.checkTheAuthor(accountId, post);
+
   return await postDao.updateAPost(requestData);
 };
 
-const deleteAPost = async (accountId, postId) => {
-  // retrieveAPost에서 자신이 작성한것만 삭제 가능케 해놓았지만
-  // updateAPost에서도 한번더 중복으로 검사를 한다. (API 서버에 직접 삭제 요청을 할 수 있기 때문)
-  const post = await postDao.findAPost(postId);
-  if (post.accountId !== accountId) {
-    detectError("자신이 작성한 게시물만 수정/삭제 가능", 400);
-  }
-  await postDao.deleteAPost(postId);
-};
+const deleteAPost = async (accountId, postId, isAdmin) => {
+  const post = await postDao.retrieveAPost(postId);
 
-const adminDeleteAPost = async (postId) => {
-  await postDao.deletaAPost(postId);
+  if (!isAdmin) {
+    error.checkTheAuthor(accountId, post);
+  }
+
+  await postDao.deleteAPost(postId);
 };
 
 module.exports = {
   retrievePosts,
   updateAPost,
   deleteAPost,
-  adminDeleteAPost,
   createAPost,
   retrieveAPost,
-  retrieveAPostNoToken,
 };

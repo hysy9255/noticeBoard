@@ -1,19 +1,14 @@
 const express = require("express");
 const categoryRouter = express.Router();
-const categoryController = require("../controllers/category.controller.js");
-const { asyncWrap } = require("../utils/error.js");
 const { adminValidator } = require("./../utils/adminValidation");
+const {
+  createACategory,
+  deleteACategory,
+  retrieveCategories,
+} = require("../controllers/category.controller.js");
 
-categoryRouter.post(
-  "",
-  adminValidator,
-  asyncWrap(categoryController.createACategory)
-);
-categoryRouter.delete(
-  "",
-  adminValidator,
-  asyncWrap(categoryController.deleteACategory)
-);
-categoryRouter.patch("", asyncWrap(categoryController.retrieveCategories));
+categoryRouter.post("", adminValidator, createACategory);
+categoryRouter.delete("", adminValidator, deleteACategory);
+categoryRouter.patch("", retrieveCategories);
 
 module.exports = categoryRouter;

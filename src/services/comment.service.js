@@ -1,34 +1,28 @@
 const commentDao = require("./../models/comment.dao.js");
+const error = require("./utils/service.error.js");
 
 const createAComment = async (userInfo, requestData) => {
   await commentDao.createAComment(userInfo, requestData);
 };
 
-const updateAComment = async (email, postId, commentId, newContents) => {
-  try {
-    const comment = await commentDao.findAComment(postId, commentId);
-    if (comment.email !== email) {
-      throw new Error("자신이 작성한 댓글만 수정/삭제 가능");
-    }
-    const updatedComment = await commentDao.updateAComment(
-      postId,
-      commentId,
-      newContents
-    );
-    return updatedComment;
-  } catch (error) {
-    throw error;
-  }
+const updateAComment = async (accountId, requestData) => {
+  const { postId, commentId } = requestData;
+  const comment = await commentDao.findAComment(postId, commentId);
+
+  error.checkTheAuthor(accountId, comment);
+
+  await commentDao.updateAComment(requestData);
 };
 
-const deleteAComment = async (email, postId, commentId) => {
+const deleteAComment = async (accountId, requestData, isAdmin) => {
+  const { postId, commentId } = requestData;
   const comment = await commentDao.findAComment(postId, commentId);
-  if (comment.email !== email) {
-    throw new Error("자신이 작성한 댓글만 수정/삭제 가능");
+
+  if (!isAdmin) {
+    error.checkTheAuthor(accountId, comment);
   }
 
-  const deletedComment = await commentDao.deleteAComment(postId, commentId);
-  return deletedComment;
+  await commentDao.deleteAComment(requestData);
 };
 
 module.exports = { createAComment, updateAComment, deleteAComment };

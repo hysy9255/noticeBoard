@@ -9,24 +9,17 @@ const getUserInfo = async (accountId) => {
 };
 
 const sendPostToUserPage = async (accountId, post) => {
-  const response = await superagent
-    .post(userPageServerAddress)
-    .send({ accountId, post });
-  return response;
+  await superagent.post(userPageServerAddress).send({ accountId, post });
 };
 
 const updatePostFromUserPage = async (accountId, updatedPost) => {
-  const response = await superagent
+  await superagent
     .patch(userPageServerAddress)
     .send({ accountId, updatedPost });
-  return response;
 };
 
 const deletePostFromUserPage = async (accountId, postId) => {
-  const response = await superagent
-    .delete(userPageServerAddress)
-    .send({ accountId, postId });
-  return response;
+  await superagent.delete(userPageServerAddress).send({ accountId, postId });
 };
 
 module.exports = {

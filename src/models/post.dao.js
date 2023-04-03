@@ -6,11 +6,10 @@ const Post = mongoose.model("post", postSchema);
 const retrievePosts = async (requestData) => {
   const { category, orderBy, method } = requestData;
   try {
-    const posts = await Post.find(
+    return await Post.find(
       { category },
       { title: 1, name: 1, createdAt: 1, views: 1, likes: 1 }
     ).sort([[orderBy, method]]);
-    return posts;
   } catch (error) {
     throw error;
   }
@@ -73,14 +72,6 @@ const deleteAPost = async (postId) => {
   }
 };
 
-const findAPost = async (postId) => {
-  try {
-    return await Post.findById(postId);
-  } catch (error) {
-    throw error;
-  }
-};
-
 const findCommentFromPost = async (postId, commentId) => {
   try {
     const post = await Post.findById(postId);
@@ -108,7 +99,6 @@ module.exports = {
   updateViews,
   updateAPost,
   deleteAPost,
-  findAPost,
   findCommentFromPost,
   updateLikesCount,
 };

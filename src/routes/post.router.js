@@ -1,32 +1,26 @@
 const express = require("express");
 const postRouter = express.Router();
-const postController = require("./../controllers/post.controller.js");
-const { asyncWrap } = require("./../utils/error.js");
-const required = require("./../middlewares/signInRequired.js");
-const optional = require("./../middlewares/signInOptional.js");
+const {
+  verifyUser,
+  verifyUserOptionally,
+  verifyAdmin,
+} = require("./../middlewares/signInRequired.js");
+const {
+  retrievePosts,
+  createAPost,
+  retrieveAPost,
+  updateAPost,
+  deleteAPost,
+  adminDeleteAPost,
+} = require("./../controllers/post.controller.js");
 
-postRouter.get("/list", asyncWrap(postController.retrievePosts));
-postRouter.post("", required.verifyUser, asyncWrap(postController.createAPost));
-postRouter.get(
-  "",
-  optional.verifyUser,
-  asyncWrap(postController.retrieveAPost)
-);
-postRouter.patch(
-  "",
-  required.verifyUser,
-  asyncWrap(postController.updateAPost)
-);
-postRouter.delete(
-  "",
-  required.verifyUser,
-  asyncWrap(postController.deleteAPost)
-);
+postRouter.get("/list", retrievePosts);
 
-postRouter.delete(
-  "/admin",
-  required.verifyAdmin,
-  asyncWrap(postController.adminDeleteAPost)
-);
+postRouter.post("", verifyUser, createAPost);
+postRouter.get("", verifyUserOptionally, retrieveAPost);
+postRouter.patch("", verifyUser, updateAPost);
+postRouter.delete("", verifyUser, deleteAPost);
+
+postRouter.delete("/admin", verifyAdmin, adminDeleteAPost);
 
 module.exports = postRouter;

@@ -1,17 +1,14 @@
 const mongoose = require("mongoose");
 const { postSchema } = require("../schemas/post.schema");
-
 const Post = mongoose.model("post", postSchema);
 
 const createAComment = async (userInfo, requestData) => {
   const { name, email, _id } = userInfo;
-  const accountId = _id;
   const { postId, contents } = requestData;
+  const accountId = _id;
+
   try {
     const post = await Post.findById(postId);
-    if (post === null) {
-      throw new Error("해당 postId를 가진 게시물이 없습니다.");
-    }
     post.comments.push({ accountId, email, name, contents });
     await post.save();
   } catch (error) {
@@ -19,25 +16,28 @@ const createAComment = async (userInfo, requestData) => {
   }
 };
 
-const updateAComment = async (postId, commentId, newContents) => {
+const updateAComment = async (requestData) => {
+  const { postId, commentId, newContents } = requestData;
+
   try {
     const post = await Post.findById(postId);
     const comment = post.comments.id(commentId);
+
     comment.contents = newContents;
-    const updatedPost = await post.save();
-    return updatedPost.comments.id(commentId);
+    await post.save();
   } catch (error) {
     throw error;
   }
 };
 
-const deleteAComment = async (postId, commentId) => {
+const deleteAComment = async (requestData) => {
+  const { postId, commentId } = requestData;
+
   try {
     const post = await Post.findById(postId);
-    console.log(post);
+
     post.comments.pull({ _id: commentId });
     post.save();
-    return post;
   } catch (error) {
     throw error;
   }
@@ -46,8 +46,7 @@ const deleteAComment = async (postId, commentId) => {
 const findAComment = async (postId, commentId) => {
   try {
     const post = await Post.findById(postId);
-    const comment = post.comments.id(commentId);
-    return comment;
+    return post.comments.id(commentId);
   } catch (error) {
     throw error;
   }

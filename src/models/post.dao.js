@@ -8,7 +8,7 @@ const retrievePosts = async (requestData) => {
   try {
     return await Post.find(
       { category },
-      { title: 1, name: 1, createdAt: 1, views: 1, likes: 1 }
+      { _id: 1, title: 1, name: 1, createdAt: 1, views: 1, likes: 1 }
     ).sort([[orderBy, method]]);
   } catch (error) {
     throw error;

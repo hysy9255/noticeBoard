@@ -1,33 +1,24 @@
 const likeService = require("./../services/like.service.js");
+const { asyncWrap } = require("../utils/error.js");
 
-const likeAPost = async (req, res, next) => {
-  try {
-    const email = res.locals.email;
-    const postId = req.body.postId;
-    const message = await likeService.likeAPost(email, postId);
-    res.status(200).send({ message });
-  } catch (error) {
-    next(error);
-  }
-};
+const pushALike = asyncWrap(async (req, res) => {
+  const accountId = res.locals.accountId;
+  const postId = req.body.postId;
 
-const retrieveLikes = async (req, res, next) => {
-  try {
-    const email = res.locals.email;
-    const postId = req.body.postId;
+  const message = await likeService.pushALike(accountId, postId);
+  res.status(200).send({ message });
+});
 
-    const [likesCount, currentUserLiked] = await likeService.retrieveLikes(
-      email,
-      postId
-    );
-    res.status(200).send({
-      message: "Likes have been retrieved",
-      likesCount,
-      currentUserLiked,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+const retrieveLikes = asyncWrap(async (req, res) => {
+  const accountId = res.locals.accountId;
+  const postId = req.body.postId;
 
-module.exports = { likeAPost, retrieveLikes };
+  const [likesCount, likeStatus, userNames] = await likeService.retrieveLikes(
+    accountId,
+    postId
+  );
+
+  res.status(200).send({ likesCount, likeStatus, userNames });
+});
+
+module.exports = { pushALike, retrieveLikes };

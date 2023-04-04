@@ -1,4 +1,5 @@
 const postDao = require("../models/post.dao");
+const likeDao = require("../models/like.dao");
 const jwt = require("jsonwebtoken");
 const error = require("./utils/service.error");
 require("dotenv").config({ path: "./../../env/.env" });

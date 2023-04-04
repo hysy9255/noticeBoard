@@ -8,6 +8,6 @@ const routes = express.Router();
 routes.use("/nb/category", categoryRouter);
 routes.use("/nb/post", postRouter);
 routes.use("/nb/comment", commentRouter);
-// routes.use("/nb/like", likeRouter);
+routes.use("/nb/like", likeRouter);
 
 module.exports = routes;

@@ -21,4 +21,31 @@ const retrieveLikes = asyncWrap(async (req, res) => {
   res.status(200).send({ likesCount, likeStatus, userNames });
 });
 
-module.exports = { pushALike, retrieveLikes };
+const pushALikeForComment = asyncWrap(async (req, res) => {
+  const accountId = res.locals.accountId;
+  const { postId, commentId } = req.body;
+
+  const message = await likeService.pushALikeForComment(
+    accountId,
+    postId,
+    commentId
+  );
+  res.status(200).send({ message });
+});
+
+const retrieveCommentLikes = asyncWrap(async (req, res) => {
+  const accountId = res.locals.accountId;
+  const { postId, commentId } = req.body;
+
+  const [likesCount, likeStatus, userNames] =
+    await likeService.retrieveCommentLikes(accountId, postId, commentId);
+
+  res.status(200).send({ likesCount, likeStatus, userNames });
+});
+
+module.exports = {
+  pushALike,
+  retrieveLikes,
+  pushALikeForComment,
+  retrieveCommentLikes,
+};

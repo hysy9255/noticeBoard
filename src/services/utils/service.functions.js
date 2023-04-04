@@ -20,4 +20,34 @@ const determineLikeStatus = async (accountId, postId) => {
   return likeExists ? true : false;
 };
 
-module.exports = { unlikeAPost, likeAPost, determineLikeStatus };
+const likeAComment = async (accountId, postId, commentId, category) => {
+  await likeDao.likeAComment(accountId, postId, commentId, category);
+  const commentLikes = await likeDao.retrieveCommentLikes(postId, commentId);
+  const commentLikesCount = commentLikes.length;
+  await postDao.updateCommentLikesCount(postId, commentId, commentLikesCount);
+};
+
+const unlikeAComment = async (accountId, postId, commentId) => {
+  await likeDao.unlikeAComment(accountId, postId, commentId);
+  const commentLikes = await likeDao.retrieveCommentLikes(postId, commentId);
+  const commentLikesCount = commentLikes.length;
+  await postDao.updateCommentLikesCount(postId, commentId, commentLikesCount);
+};
+
+const determineCommentLikeStatus = async (accountId, postId, commentId) => {
+  const likeExists = await likeDao.findACommentLike(
+    accountId,
+    postId,
+    commentId
+  );
+  return likeExists ? true : false;
+};
+
+module.exports = {
+  unlikeAPost,
+  likeAPost,
+  determineLikeStatus,
+  likeAComment,
+  unlikeAComment,
+  determineCommentLikeStatus,
+};

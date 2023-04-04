@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const { likeSchema } = require("../schemas/like.schema");
+const { commentLikeSchema } = require("../schemas/commentLike.schema");
 const Like = mongoose.model("like", likeSchema);
+const commentLike = mongoose.model("commentLike", commentLikeSchema);
 
 const likeAPost = async (accountId, postId, category) => {
   try {
@@ -20,10 +22,7 @@ const unlikeAPost = async (accountId, postId) => {
 
 const findALike = async (accountId, postId) => {
   try {
-    console.log(accountId);
-    console.log(postId);
-    const like = await Like.findOne({ accountId, postId });
-    return like;
+    return await Like.findOne({ accountId, postId });
   } catch (error) {
     throw error;
   }
@@ -48,10 +47,48 @@ const retrieveLikesForEachPost = async (category) => {
   }
 };
 
+// For comment
+
+const likeAComment = async (accountId, postId, commentId, category) => {
+  try {
+    await commentLike.create({ accountId, postId, commentId, category });
+  } catch (error) {
+    throw error;
+  }
+};
+
+const unlikeAComment = async (accountId, postId, commentId) => {
+  try {
+    await commentLike.deleteOne({ accountId, postId, commentId });
+  } catch (error) {
+    throw error;
+  }
+};
+
+const findACommentLike = async (accountId, postId, commentId) => {
+  try {
+    return await commentLike.findOne({ accountId, postId, commentId });
+  } catch (error) {
+    throw error;
+  }
+};
+
+const retrieveCommentLikes = async (postId, commentId) => {
+  try {
+    return await commentLike.find({ postId, commentId });
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   likeAPost,
   unlikeAPost,
   findALike,
   retrieveLikes,
   retrieveLikesForEachPost,
+  findACommentLike,
+  retrieveCommentLikes,
+  likeAComment,
+  unlikeAComment,
 };

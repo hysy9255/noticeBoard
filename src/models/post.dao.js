@@ -4,10 +4,10 @@ const { postSchema } = require("../schemas/post.schema");
 const Post = mongoose.model("post", postSchema);
 
 const retrievePosts = async (requestData) => {
-  const { category, orderBy, method } = requestData;
+  const { subCategory, orderBy, method } = requestData;
   try {
     return await Post.find(
-      { category },
+      { subCategory },
       { _id: 1, title: 1, name: 1, createdAt: 1, views: 1, likes: 1 }
     ).sort([[orderBy, method]]);
   } catch (error) {
@@ -18,11 +18,12 @@ const retrievePosts = async (requestData) => {
 const createAPost = async (accountId, userInfo, requestData) => {
   const views = 0;
   const { name, email } = userInfo;
-  const { category, title, contents } = requestData;
+  const { mainCategory, subCategory, title, contents } = requestData;
   try {
     return await Post.create({
       accountId,
-      category,
+      mainCategory,
+      subCategory,
       title,
       name,
       email,
@@ -92,6 +93,21 @@ const updateLikesCount = async (postId, likesCount) => {
   }
 };
 
+const updateCommentLikesCount = async (
+  postId,
+  commentId,
+  commentLikesCount
+) => {
+  try {
+    const post = await Post.findById(postId);
+    const comment = post.comments.id(commentId);
+    comment.likes = commentLikesCount;
+    post.save();
+  } catch (error) {
+    throw error;
+  }
+};
+
 module.exports = {
   retrievePosts,
   createAPost,
@@ -101,4 +117,5 @@ module.exports = {
   deleteAPost,
   findCommentFromPost,
   updateLikesCount,
+  updateCommentLikesCount,
 };

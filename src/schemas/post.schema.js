@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
 const commentSchema = new mongoose.Schema({
-  accountId: String,
-  name: String,
-  email: String,
-  contents: String,
+  accountId: { type: String, require: true },
+  name: { type: String, require: true },
+  email: { type: String, require: true },
+  contents: { type: String, require: true },
   modifyAllowed: Boolean,
   deleteAllowed: Boolean,
   createdAt: { type: Date, immutable: true, default: () => Date.now() },
@@ -12,12 +12,13 @@ const commentSchema = new mongoose.Schema({
 });
 
 const postSchema = new mongoose.Schema({
-  accountId: String,
-  category: String,
-  title: String,
-  name: String,
-  email: String,
-  contents: String,
+  accountId: { type: String, require: true },
+  mainCategory: { type: String, require: true },
+  subCatgory: { type: String, require: true }, 
+  title: { type: String, require: true },
+  name: { type: String, require: true },
+  email: { type: String, require: true },
+  contents: { type: String, require: true },
   modifyAllowed: Boolean,
   deleteAllowed: Boolean,
   views: { type: Number, default: 0 },

@@ -19,13 +19,7 @@ const createApp = () => {
   });
 
   app.use(routes);
-
-  // app.post("/like", verifyUser, likeController.likeAPost);
-
-  // app.get("/like", verifyUser, likeController.retrieveLikes);
-
   app.use(globalErrorHandler);
-
   return app;
 };
 

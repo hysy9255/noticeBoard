@@ -1,22 +1,52 @@
-const { detectError } = require("../utils/error.js");
 const categoryDao = require("./../models/category.dao.js");
+const error = require("./utils/service.error");
 
-const createACategory = async (category) => {
-  const duplicateExists = await categoryDao.findACategory(category);
-  if (duplicateExists) {
-    detectError("Given category already exists", 400);
-  }
-  await categoryDao.createACategory(category);
+const retrieveMainCats = async () => {
+  return await categoryDao.retrieveMainCats();
 };
 
-const deleteACategory = async (category) => {
-  const categoryDeleted = await categoryDao.deleteACategory(category);
-  return categoryDeleted;
+const createMainCat = async (mainCatName) => {
+  await error.checkDuplicates.forMain(mainCatName);
+  await categoryDao.createMainCat(mainCatName);
 };
 
-const retrieveCategories = async () => {
-  const categories = await categoryDao.retrieveCategories();
-  return categories;
+const deleteMainCat = async (mainCatId) => {
+  await categoryDao.deleteMainCat(mainCatId);
 };
 
-module.exports = { retrieveCategories, createACategory, deleteACategory };
+const retrieveSubCats = async (mainCatId) => {
+  return await categoryDao.retrieveSubCats(mainCatId);
+};
+
+const createSubCat = async (subCatName, mainCatId) => {
+  await error.checkDuplicates.forSub(subCatName, mainCatId);
+  await categoryDao.createSubCat(subCatName, mainCatId);
+};
+
+const deleteSubCat = async (subCatId, mainCatId) => {
+  await categoryDao.deleteSubCat(subCatId, mainCatId);
+};
+
+const requestSubCat = async (subCatName, mainCatId) => {
+  await categoryDao.requestSubCat(subCatName, mainCatId);
+};
+
+const retrieveRequests = async () => {
+  return await categoryDao.retrieveRequests();
+};
+
+const deleteARequest = async (subCatName, mainCatId) => {
+  await categoryDao.deleteARequest(subCatName, mainCatId);
+};
+
+module.exports = {
+  retrieveMainCats,
+  createMainCat,
+  deleteMainCat,
+  retrieveSubCats,
+  createSubCat,
+  deleteSubCat,
+  requestSubCat,
+  retrieveRequests,
+  deleteARequest,
+};

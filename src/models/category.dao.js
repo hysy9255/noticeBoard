@@ -9,66 +9,52 @@ const MainCat = mongoose.model("main_category", mainCatSchema);
 const SubCat = mongoose.model("sub_category", subCatSchema);
 const SubCatRequest = mongoose.model("subCatRequest", subCatRequestSchema);
 
-const retrieveMainCats = async () => {
-  return await MainCat.find({}, { _id: 1, mainCatName: 1 });
+const mainCatDao = {
+  retrieveAll: async () => {
+    return await MainCat.find({}, { _id: 1, mainCatName: 1 });
+  },
+  findOne: async (mainCatName) => {
+    return await MainCat.findOne({ mainCatName });
+  },
+  create: async (mainCatName) => {
+    await MainCat.create({ mainCatName });
+  },
+  delete: async (mainCatId) => {
+    await MainCat.deleteOne({ _id: mainCatId });
+  },
 };
 
-const findMainCat = async (mainCatName) => {
-  return await MainCat.findOne({ mainCatName });
+const subCatDao = {
+  retrieveAll: async (mainCatId) => {
+    return await SubCat.find(
+      { mainCatId },
+      { _id: 1, mainCatId: 1, subCatName: 1 }
+    );
+  },
+  findOne: async (subCatName, mainCatId) => {
+    return await SubCat.findOne({ subCatName, mainCatId });
+  },
+  create: async (subCatName, mainCatId) => {
+    await SubCat.create({ subCatName, mainCatId });
+  },
+  delete: async (subCatId, mainCatId) => {
+    await SubCat.deleteOne({ _id: subCatId, mainCatId });
+  },
 };
 
-const createMainCat = async (mainCatName) => {
-  await MainCat.create({ mainCatName });
+const subCatReqDao = {
+  retrieveAll: async () => {
+    return await SubCatRequest.find(
+      {},
+      { _id: 0, mainCatId: 1, subCatName: 1, createdAt: 1 }
+    );
+  },
+  create: async (subCatName, mainCatId) => {
+    await SubCatRequest.create({ subCatName, mainCatId });
+  },
+  delete: async (subCatName, mainCatId) => {
+    await SubCatRequest.deleteOne({ subCatName, mainCatId });
+  },
 };
 
-const deleteMainCat = async (mainCatId) => {
-  await MainCat.deleteOne({ _id: mainCatId });
-};
-
-const retrieveSubCats = async (mainCatId) => {
-  return await SubCat.find(
-    { mainCatId },
-    { _id: 1, mainCatId: 1, subCatName: 1 }
-  );
-};
-
-const findSubCat = async (subCatName, mainCatId) => {
-  return await SubCat.findOne({ subCatName, mainCatId });
-};
-
-const createSubCat = async (subCatName, mainCatId) => {
-  await SubCat.create({ subCatName, mainCatId });
-};
-
-const deleteSubCat = async (subCatId, mainCatId) => {
-  await SubCat.deleteOne({ _id: subCatId, mainCatId });
-};
-
-const requestSubCat = async (subCatName, mainCatId) => {
-  await SubCatRequest.create({ subCatName, mainCatId });
-};
-
-const retrieveRequests = async () => {
-  return await SubCatRequest.find(
-    {},
-    { _id: 0, mainCatId: 1, subCatName: 1, createdAt: 1 }
-  );
-};
-
-const deleteARequest = async (subCatName, mainCatId) => {
-  await SubCatRequest.deleteOne({ subCatName, mainCatId });
-};
-
-module.exports = {
-  retrieveMainCats,
-  findMainCat,
-  createMainCat,
-  deleteMainCat,
-  retrieveSubCats,
-  findSubCat,
-  createSubCat,
-  deleteSubCat,
-  requestSubCat,
-  retrieveRequests,
-  deleteARequest,
-};
+module.exports = { mainCatDao, subCatDao, subCatReqDao };

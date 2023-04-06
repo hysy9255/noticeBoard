@@ -1,5 +1,5 @@
 const { detectError } = require("../../utils/error.js");
-const categoryDao = require("../../models/category.dao");
+const { mainCatDao, subCatDao } = require("../../models/category.dao");
 
 const checkTheAuthor = (accountId, contents) => {
   if (contents.accountId !== accountId) {
@@ -8,14 +8,14 @@ const checkTheAuthor = (accountId, contents) => {
 };
 
 const findMainCat = async (mainCatName) => {
-  const exists = await categoryDao.findMainCat(mainCatName);
+  const exists = await mainCatDao.findOne(mainCatName);
   if (exists) {
     detectError("Given main category already exists", 400);
   }
 };
 
 const findSubCat = async (subCatName, mainCatId) => {
-  const exists = await categoryDao.findSubCat(subCatName, mainCatId);
+  const exists = await subCatDao.findOne(subCatName, mainCatId);
   if (exists) {
     detectError("Given sub category already exists", 400);
   }

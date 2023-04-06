@@ -11,7 +11,7 @@ const createAPost = async (accountId, userInfo, requestData) => {
   return await postDao.createAPost(accountId, userInfo, requestData);
 };
 
-const retrieveAPost = async (token, postId) => {
+const retrieveAPost = async (postId, token) => {
   await postDao.updateViews(postId);
   const post = await postDao.retrieveAPost(postId);
 

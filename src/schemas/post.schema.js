@@ -14,7 +14,7 @@ const commentSchema = new mongoose.Schema({
 const postSchema = new mongoose.Schema({
   accountId: { type: String, require: true },
   mainCategory: { type: String, require: true },
-  subCatgory: { type: String, require: true }, 
+  subCategory: { type: String, require: true },
   title: { type: String, require: true },
   name: { type: String, require: true },
   email: { type: String, require: true },

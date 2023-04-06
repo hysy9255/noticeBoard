@@ -32,7 +32,7 @@ const retrieveAPost = asyncWrap(async (req, res) => {
   const postId = req.query.postId;
 
   const post = token
-    ? await postService.retrieveAPost(token, postId)
+    ? await postService.retrieveAPost(postId, token)
     : await postService.retrieveAPost(postId);
   res.status(200).send(post);
 });

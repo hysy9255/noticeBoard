@@ -1,53 +1,35 @@
 const postDao = require("../../models/post.dao");
 const likeDao = require("../../models/like.dao");
 
-const unlikeAPost = async (accountId, postId) => {
-  await likeDao.unlikeAPost(accountId, postId);
-  const likes = await likeDao.retrieveLikes(postId);
+const createALike = async (accountId, postId, commentId) => {
+  await likeDao.createALike(accountId, postId, commentId);
+  const likes = await likeDao.retrieveLikes(postId, commentId);
   const likesCount = likes.length;
-  await postDao.updateLikesCount(postId, likesCount);
+  if (commentId === undefined) {
+    await postDao.updateLikesCount(likesCount, postId);
+  } else {
+    await postDao.updateCommentLikesCount(likesCount, postId, commentId);
+  }
 };
 
-const likeAPost = async (accountId, postId, category) => {
-  await likeDao.likeAPost(accountId, postId, category);
-  const likes = await likeDao.retrieveLikes(postId);
+const deleteALike = async (accountId, postId, commentId) => {
+  await likeDao.deleteALike(accountId, postId, commentId);
+  const likes = await likeDao.retrieveLikes(postId, commentId);
   const likesCount = likes.length;
-  await postDao.updateLikesCount(postId, likesCount);
+  if (commentId === undefined) {
+    await postDao.updateLikesCount(likesCount, postId);
+  } else {
+    await postDao.updateCommentLikesCount(likesCount, postId, commentId);
+  }
 };
 
-const determineLikeStatus = async (accountId, postId) => {
-  const likeExists = await likeDao.findALike(accountId, postId);
-  return likeExists ? true : false;
-};
-
-const likeAComment = async (accountId, postId, commentId, category) => {
-  await likeDao.likeAComment(accountId, postId, commentId, category);
-  const commentLikes = await likeDao.retrieveCommentLikes(postId, commentId);
-  const commentLikesCount = commentLikes.length;
-  await postDao.updateCommentLikesCount(postId, commentId, commentLikesCount);
-};
-
-const unlikeAComment = async (accountId, postId, commentId) => {
-  await likeDao.unlikeAComment(accountId, postId, commentId);
-  const commentLikes = await likeDao.retrieveCommentLikes(postId, commentId);
-  const commentLikesCount = commentLikes.length;
-  await postDao.updateCommentLikesCount(postId, commentId, commentLikesCount);
-};
-
-const determineCommentLikeStatus = async (accountId, postId, commentId) => {
-  const likeExists = await likeDao.findACommentLike(
-    accountId,
-    postId,
-    commentId
-  );
+const getStatus = async (accountId, postId, commentId) => {
+  const likeExists = await likeDao.findALike(accountId, postId, commentId);
   return likeExists ? true : false;
 };
 
 module.exports = {
-  unlikeAPost,
-  likeAPost,
-  determineLikeStatus,
-  likeAComment,
-  unlikeAComment,
-  determineCommentLikeStatus,
+  createALike,
+  deleteALike,
+  getStatus,
 };

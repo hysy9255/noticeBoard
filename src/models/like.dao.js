@@ -4,91 +4,57 @@ const { commentLikeSchema } = require("../schemas/commentLike.schema");
 const Like = mongoose.model("like", likeSchema);
 const commentLike = mongoose.model("commentLike", commentLikeSchema);
 
-const likeAPost = async (accountId, postId, category) => {
+const createALike = async (accountId, postId, commentId) => {
   try {
-    await Like.create({ accountId, postId, category });
+    if (commentId === undefined) {
+      await Like.create({ accountId, postId });
+    } else {
+      await commentLike.create({ accountId, postId, commentId });
+    }
   } catch (error) {
     throw error;
   }
 };
 
-const unlikeAPost = async (accountId, postId) => {
+const deleteALike = async (accountId, postId, commentId) => {
   try {
-    await Like.deleteOne({ accountId, postId });
+    if (commentId === undefined) {
+      await Like.deleteOne({ accountId, postId });
+    } else {
+      await commentLike.deleteOne({ accountId, postId, commentId });
+    }
   } catch (error) {
     throw error;
   }
 };
 
-const findALike = async (accountId, postId) => {
+const retrieveLikes = async (postId, commentId) => {
   try {
-    return await Like.findOne({ accountId, postId });
+    if (commentId === undefined) {
+      return await Like.find({ postId });
+    } else {
+      return await commentLike.find({ postId, commentId });
+    }
   } catch (error) {
     throw error;
   }
 };
 
-const retrieveLikes = async (postId) => {
+const findALike = async (accountId, postId, commentId) => {
   try {
-    return await Like.find({ postId });
-  } catch (error) {
-    throw error;
-  }
-};
-
-const retrieveLikesForEachPost = async (category) => {
-  try {
-    return await Like.aggregate([
-      { $match: { category } },
-      { $group: { _id: "$postId", count: { $sum: 1 } } },
-    ]);
-  } catch (error) {
-    throw error;
-  }
-};
-
-// For comment
-
-const likeAComment = async (accountId, postId, commentId, category) => {
-  try {
-    await commentLike.create({ accountId, postId, commentId, category });
-  } catch (error) {
-    throw error;
-  }
-};
-
-const unlikeAComment = async (accountId, postId, commentId) => {
-  try {
-    await commentLike.deleteOne({ accountId, postId, commentId });
-  } catch (error) {
-    throw error;
-  }
-};
-
-const findACommentLike = async (accountId, postId, commentId) => {
-  try {
-    return await commentLike.findOne({ accountId, postId, commentId });
-  } catch (error) {
-    throw error;
-  }
-};
-
-const retrieveCommentLikes = async (postId, commentId) => {
-  try {
-    return await commentLike.find({ postId, commentId });
+    if (commentId === undefined) {
+      return await Like.findOne({ accountId, postId });
+    } else {
+      return await commentLike.findOne({ accountId, postId, commentId });
+    }
   } catch (error) {
     throw error;
   }
 };
 
 module.exports = {
-  likeAPost,
-  unlikeAPost,
-  findALike,
+  createALike,
+  deleteALike,
   retrieveLikes,
-  retrieveLikesForEachPost,
-  findACommentLike,
-  retrieveCommentLikes,
-  likeAComment,
-  unlikeAComment,
+  findALike,
 };

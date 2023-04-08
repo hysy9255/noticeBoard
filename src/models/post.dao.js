@@ -83,7 +83,7 @@ const findCommentFromPost = async (postId, commentId) => {
   }
 };
 
-const updateLikesCount = async (postId, likesCount) => {
+const updateLikesCount = async (likesCount, postId) => {
   try {
     const post = await Post.findById(postId);
     post.likes = likesCount;
@@ -94,9 +94,9 @@ const updateLikesCount = async (postId, likesCount) => {
 };
 
 const updateCommentLikesCount = async (
+  commentLikesCount,
   postId,
-  commentId,
-  commentLikesCount
+  commentId
 ) => {
   try {
     const post = await Post.findById(postId);

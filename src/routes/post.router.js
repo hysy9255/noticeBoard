@@ -7,6 +7,7 @@ const {
 } = require("./../middlewares/signInRequired.js");
 const {
   retrievePosts,
+  retrieveUserPosts,
   createAPost,
   retrieveAPost,
   updateAPost,
@@ -15,6 +16,8 @@ const {
 } = require("./../controllers/post.controller.js");
 
 postRouter.get("/list", retrievePosts);
+
+postRouter.get("/user", retrieveUserPosts);
 
 postRouter.post("", verifyUser, createAPost);
 postRouter.get("", verifyUserOptionally, retrieveAPost);

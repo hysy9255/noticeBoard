@@ -1,28 +1,25 @@
 const { getUserNames } = require("../utils/superagent.js");
 const likeDao = require("../models/like.dao");
-const {
-  createALike,
-  deleteALike,
-  getStatus,
-} = require("./utils/service.functions.js");
+// const { getStatus } = require("./utils/service.functions.js");
 
-const pushALike = async (accountId, postId, commentId) => {
+const pushALike = async (accountId, id, identifier) => {
   let likeExists;
-  likeExists = await likeDao.findALike(accountId, postId, commentId);
+  likeExists = await likeDao.findALike(accountId, id, identifier);
   if (likeExists) {
-    await deleteALike(accountId, postId, commentId);
+    await likeDao.deleteALike(accountId, id, identifier);
     return "Deleted like";
   } else {
-    await createALike(accountId, postId, commentId);
+    await likeDao.createALike(accountId, id, identifier);
     return "Created like";
   }
 };
 
-const retrieveLikes = async (accountId, postId, commentId) => {
-  const likes = await likeDao.retrieveLikes(postId, commentId);
+const retrieveLikes = async (accountId, id, identifier) => {
+  const likes = await likeDao.retrieveLikes(id, identifier);
   const likesCount = likes.length;
 
-  const likeStatus = await getStatus(accountId, postId, commentId);
+  const likeExists = await likeDao.findALike(accountId, id, identifier);
+  const likeStatus = likeExists ? true : false;
 
   const accountIds = likes.map((doc) => doc.accountId);
   const userNames = await getUserNames(accountIds);

@@ -6,9 +6,7 @@ const createAComment = asyncWrap(async (req, res) => {
   const accountId = res.locals.accountId;
   const requestData = req.body;
 
-  const userInfo = await getUserInfo(accountId);
-
-  await commentService.createAComment(userInfo, requestData);
+  await commentService.createAComment(accountId, requestData);
 
   res.status(201).send({ message: "Comment has been created" });
 });
@@ -29,6 +27,16 @@ const deleteAComment = asyncWrap(async (req, res) => {
   res.status(200).send({ message: "comment has been deleted" });
 });
 
+const retrieveComments = asyncWrap(async (req, res) => {
+  const loggedInUserId = res.locals.accountId;
+  const { postId } = req.query;
+  const comments = await commentService.retrieveComments(
+    loggedInUserId,
+    postId
+  );
+  res.status(200).send(comments);
+});
+
 const adminDeleteAComment = asyncWrap(async (req, res) => {
   const { adminAcctId, isAdmin } = res.locals;
   const requestData = req.body;
@@ -42,5 +50,6 @@ module.exports = {
   createAComment,
   updateAComment,
   deleteAComment,
+  retrieveComments,
   adminDeleteAComment,
 };

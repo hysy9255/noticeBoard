@@ -15,8 +15,8 @@ const post = {
 
 const comment = {
   report: asyncWrap(async (req, res) => {
-    const { postId, commentId } = req.body;
-    await commentServ.report(postId, commentId);
+    const { commentId } = req.body;
+    await commentServ.report(commentId);
     res.status(201).json({ message: "Comment has been reported" });
   }),
   showReports: asyncWrap(async (req, res) => {

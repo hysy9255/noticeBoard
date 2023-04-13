@@ -10,8 +10,8 @@ const postServ = {
 };
 
 const commentServ = {
-  report: async (postId, commentId) => {
-    await commentDao.report(postId, commentId);
+  report: async (commentId) => {
+    await commentDao.report(commentId);
   },
   showReports: async () => {
     return await commentDao.showReports();

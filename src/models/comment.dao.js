@@ -1,52 +1,62 @@
 const mongoose = require("mongoose");
-const { postSchema } = require("../schemas/post.schema");
-const Post = mongoose.model("post", postSchema);
+const { commentSchema } = require("../schemas/comment.schema");
+const Comment = mongoose.model("comment", commentSchema);
 
-const createAComment = async (userInfo, requestData) => {
-  const { name, email, _id } = userInfo;
+const createAComment = async (accountId, requestData) => {
   const { postId, contents } = requestData;
-  const accountId = _id;
-
   try {
-    const post = await Post.findById(postId);
-    post.comments.push({ accountId, email, name, contents });
-    await post.save();
+    await Comment.create({ accountId, postId, contents });
   } catch (error) {
     throw error;
   }
 };
 
 const updateAComment = async (requestData) => {
-  const { postId, commentId, newContents } = requestData;
-
+  const { commentId, newContents } = requestData;
   try {
-    const post = await Post.findById(postId);
-    const comment = post.comments.id(commentId);
-
+    const comment = await Comment.findById(commentId);
     comment.contents = newContents;
-    await post.save();
+    await comment.save();
   } catch (error) {
     throw error;
   }
 };
 
 const deleteAComment = async (requestData) => {
-  const { postId, commentId } = requestData;
-
+  const { commentId } = requestData;
   try {
-    const post = await Post.findById(postId);
-
-    post.comments.pull({ _id: commentId });
-    post.save();
+    await Comment.deleteOne({ _id: commentId });
   } catch (error) {
     throw error;
   }
 };
 
-const findAComment = async (postId, commentId) => {
+const findAComment = async (commentId) => {
   try {
-    const post = await Post.findById(postId);
-    return post.comments.id(commentId);
+    return await Comment.findById(commentId);
+  } catch (error) {
+    throw error;
+  }
+};
+
+const updateCommentLikesCount = async (commentLikesCount, commentId) => {
+  try {
+    const comment = await Comment.findById(commentId);
+    comment.likes = commentLikesCount;
+    comment.save();
+  } catch (error) {
+    throw error;
+  }
+};
+
+const retrieveComments = async (postId) => {
+  const agg = [
+    { $match: { postId } },
+    { $addFields: { commentId: "$_id" } },
+    { $project: { _id: 0, postId: 0, __v: 0 } },
+  ];
+  try {
+    return await Comment.aggregate(agg);
   } catch (error) {
     throw error;
   }
@@ -57,4 +67,6 @@ module.exports = {
   updateAComment,
   deleteAComment,
   findAComment,
+  retrieveComments,
+  updateCommentLikesCount,
 };

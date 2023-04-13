@@ -1,35 +1,33 @@
-const postDao = require("../../models/post.dao");
-const likeDao = require("../../models/like.dao");
+const reconstructObject = (myarray) => {
+  newarray = [];
+  for (let i = 0; i < myarray.length; i++) {
+    const outerObject = {};
+    const comment = {};
+    comment.contents = myarray[i].contents;
+    comment.createdAt = myarray[i].createdAt;
+    comment.updatedAt = myarray[i].updatedAt;
+    comment.commentId = myarray[i].commentId;
+    comment.likes = myarray[i].likes ? myarray[i].likes : 0;
+    comment.usersWhoLiked = myarray[i].users;
+    outerObject.comment = comment;
 
-const createALike = async (accountId, postId, commentId) => {
-  await likeDao.createALike(accountId, postId, commentId);
-  const likes = await likeDao.retrieveLikes(postId, commentId);
-  const likesCount = likes.length;
-  if (commentId === undefined) {
-    await postDao.updateLikesCount(likesCount, postId);
-  } else {
-    await postDao.updateCommentLikesCount(likesCount, postId, commentId);
+    const author = {};
+    author.accountId = myarray[i].accountId;
+    author.name = myarray[i].name;
+    author.email = myarray[i].email;
+    author.profileImage = myarray[i].profileImage;
+    outerObject.author = author;
+
+    const user = {};
+    user.likeStatus = myarray[i].likeStatus;
+    user.modifyAllowed = myarray[i].modifyAllowed;
+    user.deleteAllowed = myarray[i].deleteAllowed;
+    outerObject.user = user;
+
+    newarray.push(outerObject);
   }
+
+  return newarray;
 };
 
-const deleteALike = async (accountId, postId, commentId) => {
-  await likeDao.deleteALike(accountId, postId, commentId);
-  const likes = await likeDao.retrieveLikes(postId, commentId);
-  const likesCount = likes.length;
-  if (commentId === undefined) {
-    await postDao.updateLikesCount(likesCount, postId);
-  } else {
-    await postDao.updateCommentLikesCount(likesCount, postId, commentId);
-  }
-};
-
-const getStatus = async (accountId, postId, commentId) => {
-  const likeExists = await likeDao.findALike(accountId, postId, commentId);
-  return likeExists ? true : false;
-};
-
-module.exports = {
-  createALike,
-  deleteALike,
-  getStatus,
-};
+module.exports = { reconstructObject };

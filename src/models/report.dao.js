@@ -14,8 +14,8 @@ const postDao = {
 };
 
 const commentDao = {
-  report: async (postId, commentId) => {
-    await ReportedComment.create({ postId, commentId });
+  report: async (commentId) => {
+    await ReportedComment.create({ commentId });
   },
   showReports: async () => {
     return await ReportedComment.find({});

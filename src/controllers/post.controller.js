@@ -9,31 +9,31 @@ const {
 
 const retrievePosts = asyncWrap(async (req, res) => {
   const requestData = req.query;
-
   const posts = await postService.retrievePosts(requestData);
+  res.status(200).json(posts);
+});
+
+const retrieveUserPosts = asyncWrap(async (req, res) => {
+  const requestData = req.query;
+  const posts = await postService.retrieveUserPosts(requestData);
   res.status(200).json(posts);
 });
 
 const createAPost = asyncWrap(async (req, res) => {
   const accountId = res.locals.accountId;
-  // 인증|인가 서버로부터 유저 정보 가져오기
-  const userInfo = await getUserInfo(accountId);
-  // 유저정보와 함께 게시물 생성하기
   const requestData = req.body;
-  const post = await postService.createAPost(accountId, userInfo, requestData);
-  // 생성된 게시물을 유저페이지 서버에 보내기
-  await sendPostToUserPage(accountId, post);
-
+  await postService.createAPost(accountId, requestData);
   res.status(200).send({ message: "Post has been created" });
 });
 
 const retrieveAPost = asyncWrap(async (req, res) => {
-  const token = req.headers.authorization;
+  const loggedInUserId = res.locals.accountId;
   const postId = req.query.postId;
 
-  const post = token
-    ? await postService.retrieveAPost(postId, token)
+  const post = loggedInUserId
+    ? await postService.retrieveAPost(postId, loggedInUserId)
     : await postService.retrieveAPost(postId);
+
   res.status(200).send(post);
 });
 
@@ -69,6 +69,7 @@ const adminDeleteAPost = asyncWrap(async (req, res) => {
 
 module.exports = {
   retrievePosts,
+  retrieveUserPosts,
   createAPost,
   retrieveAPost,
   updateAPost,

@@ -6,7 +6,6 @@ const reportedPostSchema = new mongoose.Schema({
 });
 
 const reportedCommentSchema = new mongoose.Schema({
-  postId: { type: String, require: true },
   commentId: { type: String, require: true },
   createdAt: { type: Date, immutable: true, default: () => Date.now() },
 });

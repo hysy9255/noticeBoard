@@ -1,27 +1,28 @@
-const reconstructObject = (myarray) => {
+// ***
+const reconstructObject = (inputArray) => {
   newarray = [];
-  for (let i = 0; i < myarray.length; i++) {
+  for (let i = 0; i < inputArray.length; i++) {
     const outerObject = {};
     const comment = {};
-    comment.contents = myarray[i].contents;
-    comment.createdAt = myarray[i].createdAt;
-    comment.updatedAt = myarray[i].updatedAt;
-    comment.commentId = myarray[i].commentId;
-    comment.likes = myarray[i].likes ? myarray[i].likes : 0;
-    comment.usersWhoLiked = myarray[i].users;
+    comment.contents = inputArray[i].contents;
+    comment.createdAt = inputArray[i].createdAt;
+    comment.updatedAt = inputArray[i].updatedAt;
+    comment.commentId = inputArray[i].commentId;
+    comment.likes = inputArray[i].likes ? inputArray[i].likes : 0;
+    comment.usersWhoLiked = inputArray[i].users;
     outerObject.comment = comment;
 
     const author = {};
-    author.accountId = myarray[i].accountId;
-    author.name = myarray[i].name;
-    author.email = myarray[i].email;
-    author.profileImage = myarray[i].profileImage;
+    author.accountId = inputArray[i].accountId;
+    author.name = inputArray[i].name;
+    author.email = inputArray[i].email;
+    author.profileImage = inputArray[i].profileImage;
     outerObject.author = author;
 
     const user = {};
-    user.likeStatus = myarray[i].likeStatus;
-    user.modifyAllowed = myarray[i].modifyAllowed;
-    user.deleteAllowed = myarray[i].deleteAllowed;
+    user.likeStatus = inputArray[i].likeStatus;
+    user.modifyAllowed = inputArray[i].modifyAllowed;
+    user.deleteAllowed = inputArray[i].deleteAllowed;
     outerObject.user = user;
 
     newarray.push(outerObject);

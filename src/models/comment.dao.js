@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { commentSchema } = require("../schemas/comment.schema");
 const Comment = mongoose.model("comment", commentSchema);
-
+// ***
 const createAComment = async (accountId, requestData) => {
   const { postId, contents } = requestData;
   try {
@@ -10,7 +10,15 @@ const createAComment = async (accountId, requestData) => {
     throw error;
   }
 };
-
+// ***
+const findAComment = async (commentId) => {
+  try {
+    return await Comment.findById(commentId);
+  } catch (error) {
+    throw error;
+  }
+};
+// ***
 const updateAComment = async (requestData) => {
   const { commentId, newContents } = requestData;
   try {
@@ -21,7 +29,7 @@ const updateAComment = async (requestData) => {
     throw error;
   }
 };
-
+// ***
 const deleteAComment = async (requestData) => {
   const { commentId } = requestData;
   try {
@@ -30,25 +38,7 @@ const deleteAComment = async (requestData) => {
     throw error;
   }
 };
-
-const findAComment = async (commentId) => {
-  try {
-    return await Comment.findById(commentId);
-  } catch (error) {
-    throw error;
-  }
-};
-
-const updateCommentLikesCount = async (commentLikesCount, commentId) => {
-  try {
-    const comment = await Comment.findById(commentId);
-    comment.likes = commentLikesCount;
-    comment.save();
-  } catch (error) {
-    throw error;
-  }
-};
-
+// ***
 const retrieveComments = async (postId) => {
   const agg = [
     { $match: { postId } },
@@ -68,5 +58,4 @@ module.exports = {
   deleteAComment,
   findAComment,
   retrieveComments,
-  updateCommentLikesCount,
 };

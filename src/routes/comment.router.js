@@ -13,14 +13,10 @@ const {
   adminDeleteAComment,
 } = require("./../controllers/comment.controller.js");
 
-commentRouter.get("", verifyUserOptionally, retrieveComments);
-
-commentRouter.post("", verifyUser, createAComment);
-
-commentRouter.patch("", verifyUser, updateAComment);
-
-commentRouter.delete("", verifyUser, deleteAComment);
-
-commentRouter.delete("/admin", verifyAdmin, adminDeleteAComment);
+commentRouter.get("", verifyUserOptionally, retrieveComments); // ***
+commentRouter.post("", verifyUser, createAComment); // ***
+commentRouter.patch("", verifyUser, updateAComment); // ***
+commentRouter.delete("", verifyUser, deleteAComment); // ***
+commentRouter.delete("/admin", verifyAdmin, adminDeleteAComment); // ***
 
 module.exports = commentRouter;

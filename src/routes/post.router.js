@@ -15,15 +15,12 @@ const {
   adminDeleteAPost,
 } = require("./../controllers/post.controller.js");
 
-postRouter.get("/list", retrievePosts);
-
+postRouter.post("", verifyUser, createAPost); // ***
+postRouter.get("/list", retrievePosts); // ***
+postRouter.get("", verifyUserOptionally, retrieveAPost); // ***
+postRouter.patch("", verifyUser, updateAPost); // ***
+postRouter.delete("", verifyUser, deleteAPost); // ***
+postRouter.delete("/admin", verifyAdmin, adminDeleteAPost); // ***
 postRouter.get("/user", retrieveUserPosts);
-
-postRouter.post("", verifyUser, createAPost);
-postRouter.get("", verifyUserOptionally, retrieveAPost);
-postRouter.patch("", verifyUser, updateAPost);
-postRouter.delete("", verifyUser, deleteAPost);
-
-postRouter.delete("/admin", verifyAdmin, adminDeleteAPost);
 
 module.exports = postRouter;

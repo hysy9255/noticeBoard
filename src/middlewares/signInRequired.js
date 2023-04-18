@@ -8,13 +8,12 @@ const verifyUser = async (req, res, next) => {
     if (!token) {
       detectError("TOKEN_DOES_NOT_EXIST");
     }
-
     const decoded = await jwt.verify(token, process.env.SECRETE_KEY);
     if (!decoded) {
       detectError("DECODING_TOKEN_FAILED");
     }
-
     res.locals.accountId = decoded.accountId;
+    res.locals.isAdmin = decoded.isAdmin;
     next();
   } catch (error) {
     next(error);
@@ -27,12 +26,10 @@ const verifyUserOptionally = async (req, res, next) => {
     if (!token) {
       return next();
     }
-
     const decoded = await jwt.verify(token, process.env.SECRETE_KEY);
     if (!decoded) {
       detectError("DECODING_TOKEN_FAILED");
     }
-
     res.locals.accountId = decoded.accountId;
     next();
   } catch (error) {
@@ -46,16 +43,13 @@ const verifyAdmin = async (req, res, next) => {
     if (!token) {
       detectError("TOKEN_DOES_NOT_EXIST");
     }
-
     const decoded = await jwt.verify(token, process.env.SECRETE_KEY);
     if (!decoded) {
       detectError("DECODING_TOKEN_FAILED");
     }
-
     if (!decoded.isAdmin) {
       detectError("ACCESS_NOT_ALLOWED_FOR_USER_ACCOUNT");
     }
-
     res.locals.adminAcctId = decoded.accountId;
     res.locals.isAdmin = decoded.isAdmin;
     next();

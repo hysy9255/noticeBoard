@@ -14,7 +14,7 @@ const getUserInfo = async (accountId) => {
 
   return response.body;
 };
-
+// ***
 const getMultipleUserInfos = async (accountIds) => {
   const response = await superagent
     .get(authServerAddress + pathForGettingMultipleUserInfos)
@@ -22,7 +22,7 @@ const getMultipleUserInfos = async (accountIds) => {
 
   return response.body;
 };
-
+// ***
 const getUserNames = async (accountIds) => {
   const response = await superagent
     .post(authServerAddress + pathForGettingUserNames)

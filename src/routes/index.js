@@ -7,11 +7,11 @@ const reportRouter = require("./report.router.js");
 const searchRouter = require("./search.router.js");
 
 const routes = express.Router();
-routes.use("/nb/category", categoryRouter);
-routes.use("/nb/post", postRouter);
-routes.use("/nb/comment", commentRouter);
-routes.use("/nb/like", likeRouter);
-routes.use("/nb/report", reportRouter);
+routes.use("/nb/category", categoryRouter); // ***
+routes.use("/nb/post", postRouter); // * haven't done userPage yet
+routes.use("/nb/comment", commentRouter); // ***
+routes.use("/nb/like", likeRouter); // ***
 routes.use("/nb/search", searchRouter);
+routes.use("/nb/report", reportRouter);
 
 module.exports = routes;

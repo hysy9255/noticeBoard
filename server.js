@@ -1,6 +1,8 @@
 const { createApp } = require("./app.js");
 require("dotenv").config({ path: "./env/.env" });
 const mongoose = require("mongoose");
+const cron = require("node-cron");
+const { scheduler } = require("./src/utils/scheduler");
 
 const startServer = () => {
   mongoose.set("strictQuery", true);
@@ -11,11 +13,13 @@ const startServer = () => {
   const app = createApp();
   const PORT = 3000;
 
-  app.get("/", (req, res) => {
-    res.status(200).send("hello world");
-  });
-
   app.listen(PORT, () => console.log(`server is listening on ${PORT}`));
+
+  // const minutes = 30;
+  // cron.schedule(`*/${minutes} * * * *`, async () => {
+  //   console.log(`Executing scheduler every ${minutes} minutes`);
+  //   await scheduler();
+  // });
 };
 
 startServer();

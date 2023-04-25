@@ -11,21 +11,4 @@ const postSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: () => Date.now() },
 });
 
-postSchema.index({
-  mappings: {
-    dynamic: false,
-    fields: {
-      name: [
-        {
-          foldDiacritics: false,
-          maxGrams: 7,
-          minGrams: 3,
-          tokenization: "edgeGram",
-          type: "autocomplete",
-        },
-      ],
-    },
-  },
-});
-
 module.exports = { postSchema };

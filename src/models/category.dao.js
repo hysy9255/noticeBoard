@@ -45,6 +45,15 @@ const mainCatDao = {
     return mainCat.name;
   },
   // ***
+  getNamesByIds: async (mainCatIds) => {
+    const agg = [
+      { $match: { _id: { $in: mainCatIds } } },
+      { $addFields: { mainCatId: "$_id", mainCatName: "$name" } },
+      { $project: { _id: 0, mainCatId: 1, mainCatName: 1 } },
+    ];
+    return await MainCat.aggregate(agg);
+  },
+  // ***
   create: async (mainCatName) => {
     await MainCat.create({ name: mainCatName });
   },
@@ -73,6 +82,15 @@ const subCatDao = {
   // ***
   findSubCat: async (mainCatId, subCatName) => {
     return await SubCat.findOne({ name: subCatName, mainCatId });
+  },
+  // ***
+  getNamesByIds: async (subCatIds) => {
+    const agg = [
+      { $match: { _id: { $in: subCatIds } } },
+      { $addFields: { subCatId: "$_id", subCatName: "$name" } },
+      { $project: { _id: 0, subCatId: 1, subCatName: 1 } },
+    ];
+    return await SubCat.aggregate(agg);
   },
   // ***
   create: async (mainCatId, subCatName) => {

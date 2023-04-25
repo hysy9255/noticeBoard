@@ -21,30 +21,109 @@ const createAPost = async (accountId, requestData) => {
 };
 // ***
 const retrievePosts = async (requestData) => {
-  const { subCatId, orderBy, method } = requestData;
+  // const { subCatId, orderBy, method } = requestData;
   // const sort = generateSort(orderBy, method);
+  const { mainCatId, subCatId } = requestData;
+  let { page } = requestData;
+
+  if (page === undefined) {
+    page = 1;
+  }
+
+  const limit = 5;
+  const skip = 5 * (page - 1);
+
+  const match = {};
+  if (mainCatId) {
+    match.mainCatId = mainCatId;
+  }
+  if (subCatId) {
+    match.subCatId = subCatId;
+  }
   const agg = [
-    { $match: { subCatId } },
+    { $match: match },
     {
       $addFields: { postId: "$_id" },
     },
     {
-      $project: {
-        _id: 0,
-        accountId: 1,
-        postId: 1,
-        title: 1,
-        createdAt: 1,
-        updatedAt: 1,
-        views: 1,
+      $sort: { createdAt: -1 },
+    },
+    {
+      $facet: {
+        totalCount: [{ $count: "total" }],
+        paginatedResults: [
+          { $skip: skip },
+          { $limit: limit },
+          {
+            $project: {
+              _id: 0,
+              mainCatId: 1,
+              subCatId: 1,
+              accountId: 1,
+              postId: 1,
+              title: 1,
+              createdAt: 1,
+              updatedAt: 1,
+              views: 1,
+            },
+          },
+        ],
       },
     },
-    // {
-    //   $sort: sort,
-    // },
   ];
   try {
-    return await Post.aggregate(agg);
+    const [result] = await Post.aggregate(agg);
+    return result;
+  } catch (error) {
+    throw error;
+  }
+};
+// ***
+const retrieveUserPosts = async (requestData) => {
+  const { accountId } = requestData;
+  let { page } = requestData;
+
+  if (page === undefined) {
+    page = 1;
+  }
+
+  const limit = 5;
+  const skip = 5 * (page - 1);
+
+  const agg = [
+    { $match: { accountId } },
+    {
+      $addFields: { postId: "$_id" },
+    },
+    {
+      $sort: { createdAt: -1 },
+    },
+    {
+      $facet: {
+        totalCount: [{ $count: "total" }],
+        paginatedResults: [
+          { $skip: skip },
+          { $limit: limit },
+          {
+            $project: {
+              _id: 0,
+              mainCatId: 1,
+              subCatId: 1,
+              accountId: 1,
+              postId: 1,
+              title: 1,
+              createdAt: 1,
+              updatedAt: 1,
+              views: 1,
+            },
+          },
+        ],
+      },
+    },
+  ];
+  try {
+    const [result] = await Post.aggregate(agg);
+    return result;
   } catch (error) {
     throw error;
   }
@@ -99,21 +178,14 @@ const deleteAPost = async (postId) => {
   }
 };
 
-const retrieveUserPosts = async (requestData) => {
-  const { accountId } = requestData;
+const getPostAuthorId = async (postId) => {
   const agg = [
-    { $match: { accountId } },
-    {
-      $addFields: { postId: "$_id" },
-    },
-    {
-      $project: {
-        _id: 0,
-      },
-    },
+    { $match: { _id: ObjectId(postId) } },
+    { $project: { accountId: 1 } },
   ];
   try {
-    return await Post.aggregate(agg);
+    const [data] = await Post.aggregate(agg);
+    return data.accountId;
   } catch (error) {
     throw error;
   }
@@ -127,4 +199,5 @@ module.exports = {
   updateViews,
   updateAPost,
   deleteAPost,
+  getPostAuthorId,
 };

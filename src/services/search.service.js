@@ -1,9 +1,18 @@
+const { searchAccounts } = require("../utils/superagent.js");
 const searchDao = require("./../models/search.dao.js");
 
-const search = async (keyword) => {
-  const posts = await searchDao.searchPosts(keyword);
-  console.log(posts);
-  return posts;
+const autoComplete = async (keyword) => {
+  return await searchDao.postAutoCompleteSearch(keyword);
 };
 
-module.exports = { search };
+const search = async (keyword) => {
+  const postResult = await searchDao.searchPosts(keyword);
+  const accountResult = await searchAccounts(keyword);
+
+  return {
+    posts: postResult,
+    accounts: accountResult,
+  };
+};
+
+module.exports = { search, autoComplete };

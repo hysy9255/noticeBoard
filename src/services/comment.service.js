@@ -1,11 +1,26 @@
 const commentDao = require("./../models/comment.dao.js");
 const likeDao = require("../models/like.dao");
+const alertDao = require("../models/alert.dao");
+const postDao = require("../models/post.dao");
 const error = require("./utils/service.error.js");
 const { getMultipleUserInfos, getUserNames } = require("../utils/superagent");
 const { reconstructObject } = require("./utils/service.functions.js");
 // ***
 const createAComment = async (accountId, requestData) => {
+  const { postId } = requestData;
   await commentDao.createAComment(accountId, requestData);
+  const postAuthorId = await postDao.getPostAuthorId(postId);
+  if (postAuthorId !== accountId) {
+    const [userName] = await getUserNames([accountId]);
+    const [post] = await postDao.retrieveAPost(postId);
+    await alertDao.createAlert.forComment(
+      accountId,
+      userName,
+      postId,
+      post.title,
+      post.accountId
+    );
+  }
 };
 // ***
 const updateAComment = async (accountId, requestData) => {

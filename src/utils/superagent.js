@@ -1,8 +1,7 @@
-const { response } = require("express");
 const superagent = require("superagent");
 
-const authServerAddress = "http://localhost:8000";
-// const authServerAddress = "http://43.200.7.5:81";
+// const authServerAddress = "http://localhost:8000";
+const authServerAddress = "http://43.200.7.5:81";
 const userPageServerAddress = "http://localhost:5000/userPage/post";
 
 const pathForGettingUserInfo = "/auth/userInfo";

@@ -16,6 +16,5 @@ jobs:
         with:
           image: hysy9255/auth
           registry: docker.io
-          dockerfile: ./
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
